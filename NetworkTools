@@ -36,6 +36,7 @@ menu.toggle_loop(
     "Will send continuous remote kicks, this causes a soft ban for your target leaving them unable to stay in a public lobby.",
     function(a)
         menu.trigger_command(menu.ref_by_path("Online>Player History>Qf830869 [Public]>Blind-Fire Kick>Breakup"))
+        util.yield(500)
     end,
     true
 )

@@ -130,7 +130,6 @@ menu.action(
         util.toast("Panic Button Pressed!")
         util.log("Panic Button Was Pressed!")
         menu.trigger_commands("clearproximity 100")
-        menu.trigger_commands("lualancescriptreloaded")
         util.yield(100)
         menu.trigger_commands("supercleanse")
         menu.trigger_commands("noblame")
@@ -143,7 +142,6 @@ menu.action(
         menu.trigger_commands("infopickups")
         menu.trigger_commands("infoobjects")
         menu.trigger_commands("blockjoins")
-        menu.trigger_commands("luanetworkmenu")
         util.log("Panic Button Ran Successfully.")
         util.toast("[NETWORK TOOLS] Activated Panic Button.")
     end,

@@ -25,6 +25,7 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
+local default_check_interval = 0
 util.keep_running()
 util.yield(200)
 util.toast("Welcome to the Network Menu.")

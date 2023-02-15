@@ -25,7 +25,7 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
-local default_check_interval = 0
+local change = menu.list(menu.my_root(), "Changelog")
 util.keep_running()
 util.yield(200)
 util.toast("Welcome to the Network Menu.")
@@ -90,51 +90,22 @@ menu.action(
 )
 menu.action(
     menu.my_root(),
-    "Break Lobby",
-    {"breaklobby"},
-    "Will cause the lobby to remain in a permanent broken state. (This cannot be undone, only use this if you have a good reason)",
-    function()
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Scrips>Session Breaking>GTA Online Intro")
-        )
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>fm_mission_controller")
-        )
-        menu.trigger_command(menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>golf_mp"))
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>FM_Survival_Controller")
-        )
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>fm_deathmatch_controler")
-        )
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>tennis_network_mp")
-        )
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>Range_Modern_MP")
-        )
-        menu.trigger_command(
-            menu.ref_by_path("Online>Session>Session Scripts>Run Script>Session Breaking>FM_Race_Controler")
-        )
-        util.toast("[NETWORK TOOLS] Session Breaking executed successfully.")
-        util.log("[NETWORK TOOLS] Session Breaking executed successfully.")
-    end,
-    true
-)
-menu.action(
-    menu.my_root(),
     "Panic Button",
     {"pb"},
     "Will activate Panic Mode. (Use this to discard all network traffic to and from you, and protect against bad objects / excessive objects from being spawned.)",
     function()
         util.toast("Panic Button Pressed!")
         util.log("Panic Button Was Pressed!")
+        util.yield()
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
+        util.yield(1000)
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
+        util.yield(1000)
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
         menu.trigger_commands("clearproximity 100")
         util.yield(100)
-        menu.trigger_commands("supercleanse")
         menu.trigger_commands("noblame")
         menu.trigger_commands("anticrash")
-        menu.trigger_commands("cleararea")
         menu.trigger_commands("desyncall")
         menu.trigger_commands("norender")
         menu.trigger_commands("infopeds")
@@ -142,8 +113,13 @@ menu.action(
         menu.trigger_commands("infopickups")
         menu.trigger_commands("infoobjects")
         menu.trigger_commands("blockjoins")
+        menu.trigger_commands("cleararea")
         util.log("Panic Button Ran Successfully.")
-        util.toast("[NETWORK TOOLS] Activated Panic Button.")
+        util.toast("[NETWORK TOOLS] Cycle completed.")
     end,
     true
 )
+menu.action(change, "Removed Break Lobby", {""}, "", function()
+end, true)
+menu.action(change, "Updated Panic Button", {""}, "", function()
+end, true)

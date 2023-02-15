@@ -25,6 +25,7 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
+local default_check_interval = 1
 local change = menu.list(menu.my_root(), "Changelog")
 util.keep_running()
 util.yield(200)

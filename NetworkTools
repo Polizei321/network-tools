@@ -91,7 +91,7 @@ menu.action(
 )
 menu.action(
     menu.my_root(),
-    "Panic Button",
+    "Panic Button 11",
     {"pb"},
     "Will activate Panic Mode. (Use this to discard all network traffic to and from you, and protect against bad objects / excessive objects from being spawned.)",
     function()

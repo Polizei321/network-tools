@@ -28,22 +28,18 @@ auto_updater.run_auto_update({
 })
 local change = menu.list(menu.my_root(), "Changelog")
 local updates = menu.list(menu.my_root(), "Updates")
+local experiments = menu.list(menu.my_root(), "Experiments")
 util.keep_running()
 util.yield(200)
-util.toast("Welcome to the Network Menu.")
+util.toast("Welcome to the Network Menu. Version 1.5")
 util.log("Welcome to the Network Menu.")
-menu.action(updates, "[B] Check for Update", {}, "This button is broken as of now, please give me time to figure out how to fix this.", function()
-    auto_update_config.check_interval = 0
-    util.toast("Checking for updates")
-    auto_updater.run_auto_update(auto_update_config)
-end)
 menu.toggle_loop(
     menu.my_root(),
     "Remote Ban",
     {"remoteban"},
     "Will send continuous remote kicks, this causes a soft ban for your target leaving them unable to stay in a public lobby.",
     function(a)
-        menu.trigger_command(menu.ref_by_path("Online>Player History>Qf830869 [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>TARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
         util.yield(500)
     end,
     true
@@ -52,9 +48,9 @@ menu.action(
     menu.my_root(),
     "Remote Ban Test",
     {"remotebantest"},
-    "Will send a single remote kick. (Use this to attempt a successful connection)",
+    "Will send a single remote kick.",
     function()
-        menu.trigger_command(menu.ref_by_path("Online>Player History>Qf830869 [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>TTARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
         util.log("[NETWORK TOOLS] Sending a manual remote kick.")
         util.toast("[NETWORK TOOLS] Sending a manual remote kick.")
     end,
@@ -130,4 +126,14 @@ menu.action(change, "Removed Break Lobby", {""}, "", function()
 end, true)
 menu.action(change, "Updated Panic Button", {""}, "", function()
 end, true)
-
+menu.action(change, "Added Experiments section", {""}, "", function()
+end, true)
+menu.action(change, "Added Plugin Support", {""}, "", function()
+end, true)
+menu.action(experiments, "Check for Update", {}, "This button is broken as of now, please give me time to figure out how to fix this.", function()
+    util.toast("[WARN] This does NOT work. But I will attempt it anyways for you :)")
+    util.yield(1000)
+    auto_update_config.check_interval = 0
+    util.toast("Checking for updates")
+    auto_updater.run_auto_update(auto_update_config)
+end)

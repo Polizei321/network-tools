@@ -26,12 +26,12 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
+local start_time = util.current_time_millis()
 local change = menu.list(menu.my_root(), "Changelog")
 local updates = menu.list(menu.my_root(), "Updates")
 local experiments = menu.list(menu.my_root(), "Experiments")
 local plugins = menu.list(menu.my_root(), "Plugins")
 util.keep_running()
-util.yield(200)
 util.toast("Welcome to the Network Menu. Version 1.5")
 util.log("Welcome to the Network Menu.")
 menu.toggle_loop(
@@ -116,7 +116,6 @@ menu.action(
         menu.trigger_commands("infovehicles")
         menu.trigger_commands("infopickups")
         menu.trigger_commands("infoobjects")
-        menu.trigger_commands("blockjoins")
         menu.trigger_commands("cleararea")
         util.log("Panic Button Ran Successfully.")
         util.toast("[NETWORK TOOLS] Cycle completed.")
@@ -124,12 +123,16 @@ menu.action(
     true
 )
 menu.action(change, "Removed Break Lobby", {""}, "", function()
+    util.toast("Boom!")
 end, true)
 menu.action(change, "Updated Panic Button", {""}, "", function()
+    util.toast("BAM!")
 end, true)
 menu.action(change, "Added Experiments section", {""}, "", function()
+    util.toast("Pow!")
 end, true)
 menu.action(change, "Added Plugin Support", {""}, "", function()
+    util.toast("Crash!")
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -150,3 +153,9 @@ menu.action(experiments, "Check for Update", {}, "This button is broken as of no
     util.toast("Checking for updates")
     auto_updater.run_auto_update(auto_update_config)
 end)
+
+
+local end_time = util.current_time_millis()
+local load_time = end_time - start_time
+
+util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)

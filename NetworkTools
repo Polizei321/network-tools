@@ -37,6 +37,20 @@ local fmoney = menu.list(menu.my_root(), "Freemode Money")
 function SET_INT_GLOBAL(global, value)
     memory.write_int(memory.script_global(global), value)
 end
+function ADD_MP_INDEX(stat)
+    if not IS_MPPLY_STAT(stat) then
+        stat = "MP" .. util.get_char_slot() .. "_" .. stat
+    end
+    return stat
+end
+function STAT_SET_INT(stat, value)
+    STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function SET_INT_LOCAL(script, script_local, value)
+    if memory.script_local(script, script_local) ~= 0 then
+        memory.write_int(memory.script_local(script, script_local), value)
+    end
+end
 util.keep_running()
 util.toast("Welcome to the Network Menu. Version 1.7")
 util.log("Welcome to the Network Menu.")

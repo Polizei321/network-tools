@@ -52,7 +52,7 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu. Version 1.7")
+util.toast("Welcome to the Network Menu. Version 1.9")
 util.log("Welcome to the Network Menu.")
 menu.toggle_loop(
     menu.my_root(),

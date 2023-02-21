@@ -1,3 +1,4 @@
+-- Auto Updater from https://github.com/hexarobi/stand-lua-auto-updater
 local status, auto_updater = pcall(require, "auto-updater")
 if not status then
     local auto_update_complete = nil util.toast("Installing auto-updater...", TOAST_ALL)
@@ -20,6 +21,7 @@ if not status then
 end
 if auto_updater == true then error("Invalid auto-updater lib. Please delete your Stand/Lua Scripts/lib/auto-updater.lua and try again") end
 auto_updater.run_auto_update({
+    check_interval= 1,
     source_url="https://raw.githubusercontent.com/Polizei321/network-tools/main/nmtl.lua",
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"

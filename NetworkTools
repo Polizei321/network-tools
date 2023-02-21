@@ -26,4 +26,521 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
-util.toast("Hi")
+local start_time = util.current_time_millis()
+
+local change = menu.list(menu.my_root(), "Changelog")
+local meanings = menu.list(menu.my_root(), "Symbols")
+local experiments = menu.list(menu.my_root(), "Experiments")
+local plugins = menu.list(menu.my_root(), "Plugins")
+local heist = menu.list(menu.my_root(), "Heists Utilities")
+local fmoney = menu.list(menu.my_root(), "Freemode Money")
+local DOOMS_HEIST = menu.list(menu.my_root(), ("Doomsday Heist"), {"hcdooms"}, "", function(); end)
+local CASINO_HEIST = menu.list(menu.my_root(), ("Diamond Casino Heist"), {"hccah"}, "", function(); end)
+function IS_MPPLY_STAT(stat)
+    local MpplyStats = {
+        "MP_PLAYING_TIME",
+        "MP_NGDLCPSTAT_INT0",
+        
+        "MP_TUPSTAT_INT0",
+        "MP_TUPSTAT_INT1",
+        "MP_TUPSTAT_INT2",
+        "MP_TUPSTAT_INT3",
+        "MP_TUPSTAT_BOOL0",
+        "MP_NGPSTAT_INT0",
+        "MP_NGPSTAT_BOOL0",
+        "MP_NGDLCPSTAT_BOOL0",
+        "MP_PLAYING_TIME_NEW",
+        "MP_PSTAT_BOOL0",
+        "MP_PSTAT_BOOL1",
+        "MP_PSTAT_BOOL2",
+        "MP_PSTAT_INT0",
+        "MP_PSTAT_INT1",
+        "MP_PSTAT_INT2",
+    }
+    for _, mpply_stat in pairs(MpplyStats) do
+        if stat == mpply_stat then
+            return true
+        end
+    end
+
+    if string.find(stat, "MPPLY_") then
+        return true
+    else
+        return false
+    end
+end
+function ADD_MP_INDEX(stat)
+    if not IS_MPPLY_STAT(stat) then
+        stat = "MP" .. util.get_char_slot() .. "_" .. stat
+    end
+    return stat
+end
+
+function STAT_SET_INT(stat, value)
+    STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_FLOAT(stat, value)
+    STATS.STAT_SET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_BOOL(stat, value)
+    STATS.STAT_SET_BOOL(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_STRING(stat, value)
+    STATS.STAT_SET_STRING(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_DATE(stat, year, month, day, hour, min)
+    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    memory.write_int(DatePTR, year)
+    memory.write_int(DatePTR+8, month)
+    memory.write_int(DatePTR+16, day)
+    memory.write_int(DatePTR+24, hour)
+    memory.write_int(DatePTR+32, min)
+    memory.write_int(DatePTR+40, 0) -- Seconds
+    memory.write_int(DatePTR+48, 0) -- Milliseconds
+    STATS.STAT_SET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
+end
+
+function STAT_SET_MASKED_INT(stat, value1, value2)
+    STATS.STAT_SET_MASKED_INT(util.joaat(ADD_MP_INDEX(stat)), value1, value2, 8, true)
+end
+function SET_PACKED_STAT_BOOL_CODE(stat, value)
+    STATS.SET_PACKED_STAT_BOOL_CODE(stat, value, util.get_char_slot())
+end
+function STAT_SET_INCREMENT(stat, value)
+    STATS.STAT_INCREMENT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+
+function STAT_GET_INT(stat)
+    local IntPTR = memory.alloc_int()
+    STATS.STAT_GET_INT(util.joaat(ADD_MP_INDEX(stat)), IntPTR, -1)
+    return memory.read_int(IntPTR)
+end
+function STAT_GET_FLOAT(stat)
+    local FloatPTR = memory.alloc_int()
+    STATS.STAT_GET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), FloatPTR, -1)
+    return tonumber(string.format("%.3f", memory.read_float(FloatPTR)))
+end
+function STAT_GET_BOOL(stat)
+    if STAT_GET_INT(stat) ~= 0 then
+        return "true"
+    else
+        return "false"
+    end
+end
+function STAT_GET_STRING(stat)
+    return STATS.STAT_GET_STRING(util.joaat(ADD_MP_INDEX(stat)), -1)
+end
+function STAT_GET_DATE(stat, type)
+    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    STATS.STAT_GET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
+    local DateType = {
+        "Years",
+        "Months",
+        "Days",
+        "Hours",
+        "Mins",
+        -- Seconds,
+        -- Milliseconds,
+    }
+    for i = 1, #DateType do
+        if type == DateType[i] then
+            return memory.read_int(DatePTR + 8 * (i - 1))
+        end
+    end
+end
+
+function SET_INT_GLOBAL(global, value)
+    memory.write_int(memory.script_global(global), value)
+end
+function SET_FLOAT_GLOBAL(global, value)
+    memory.write_float(memory.script_global(global), value)
+end
+
+function GET_INT_GLOBAL(global)
+    return memory.read_int(memory.script_global(global))
+end
+
+function SET_PACKED_INT_GLOBAL(start_global, end_global, value)
+    for i = start_global, end_global do
+        SET_INT_GLOBAL(262145 + i, value)
+    end
+end
+
+function SET_INT_LOCAL(script, script_local, value)
+    if memory.script_local(script, script_local) ~= 0 then
+        memory.write_int(memory.script_local(script, script_local), value)
+    end
+end
+function SET_FLOAT_LOCAL(script, script_local, value)
+    if memory.script_local(script, script_local) ~= 0 then
+        memory.write_float(memory.script_local(script, script_local), value)
+    end
+end
+
+function GET_INT_LOCAL(script, script_local)
+    if memory.script_local(script, script_local) ~= 0 then
+        local ReadLocal = memory.read_int(memory.script_local(script, script_local))
+        if ReadLocal ~= nil then
+            return ReadLocal
+        end
+    end
+end
+util.keep_running()
+util.toast("Welcome to the Network Menu. Version 1.9")
+util.log("Welcome to the Network Menu.")
+menu.toggle_loop(
+    menu.my_root(),
+    "Remote Ban",
+    {"remoteban"},
+    "Will send continuous remote kicks, this causes a soft ban for your target leaving them unable to stay in a public lobby.",
+    function(a)
+        menu.trigger_command(menu.ref_by_path("Online>Player History>TARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
+        util.yield(500)
+    end,
+    true
+)
+menu.action(
+    menu.my_root(),
+    "Remote Ban Test",
+    {"remotebantest"},
+    "Will send a single remote kick.",
+    function()
+        menu.trigger_command(menu.ref_by_path("Online>Player History>TTARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
+        util.log("[NETWORK TOOLS] Sending a manual remote kick.")
+        util.toast("[NETWORK TOOLS] Sending a manual remote kick.")
+    end,
+    true
+)
+menu.action(
+    menu.my_root(),
+    "Lock Server Down",
+    {"lockserver"},
+    "Will lock the session you are in making it impossible for adversaries to join. (Use this to block retalitory kicks / block any stalkers from joining.)",
+    function()
+        menu.trigger_command(menu.ref_by_path("Online>Session>Block Joins>From Non-Whitelisted"))
+        menu.trigger_command(menu.ref_by_path("Online>Spoofing>Session Spoofing>Hide Session>Non-Existent Session"))
+        menu.trigger_command(menu.ref_by_path("Online>Spoofing>Session Spoofing>Session Type>Invalid"))
+        menu.trigger_command(menu.ref_by_path("Online>Reactions>RID Join Reactions>Block"))
+        menu.trigger_commands("spoofhost on")
+        menu.trigger_commands("spoofedhostname invalid")
+        util.yield(1000)
+        util.toast("[NETWORK TOOLS] Successfully locked the server.")
+        util.log("[NETWORK TOOLS] Server has been locked.")
+    end,
+    true
+)
+menu.action(
+    menu.my_root(),
+    "Unlock Server",
+    {"unlockserver"},
+    "Will unlock the server.",
+    function()
+        menu.trigger_command(menu.ref_by_path("Online>Session>Block Joins>From Non-Whitelisted"))
+        menu.trigger_command(menu.ref_by_path("Online>Spoofing>Session Spoofing>Hide Session>Disabled"))
+        menu.trigger_command(menu.ref_by_path("Online>Spoofing>Session Spoofing>Session Type>Not Spoofed"))
+        menu.trigger_command(menu.ref_by_path("Online>Reactions>RID Join Reactions>Block"))
+        menu.trigger_commands("spoofhost off")
+        util.yield(1000)
+        util.toast("[NETWORK TOOLS] Successfully unlocked the server.")
+        util.log("[NETWORK TOOLS] Server has been unlocked.")
+    end,
+    true
+)
+menu.action(
+    menu.my_root(),
+    "Panic Button",
+    {"pb"},
+    "Will activate Panic Mode. (Use this to discard all network traffic to and from you, and protect against bad objects / excessive objects from being spawned.)",
+    function()
+        util.toast("Panic Button Pressed!")
+        util.log("Panic Button Was Pressed!")
+        util.yield()
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
+        util.yield(1000)
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
+        util.yield(1000)
+        util.toast("[WARN] Wait until the cycle is completed before pressing again.")
+        menu.trigger_commands("clearproximity 100")
+        util.yield(100)
+        menu.trigger_commands("noblame")
+        menu.trigger_commands("anticrash")
+        menu.trigger_commands("desyncall")
+        menu.trigger_commands("norender")
+        menu.trigger_commands("infopeds")
+        menu.trigger_commands("infovehicles")
+        menu.trigger_commands("infopickups")
+        menu.trigger_commands("infoobjects")
+        menu.trigger_commands("cleararea")
+        util.log("Panic Button Ran Successfully.")
+        util.toast("[NETWORK TOOLS] Cycle completed.")
+    end,
+    true
+)
+menu.action(change, "[1.2]Removed Break Lobby", {""}, "", function()
+end, true)
+menu.action(change, "[1.3]Updated Panic Button", {""}, "", function()
+end, true)
+menu.action(change, "[1.4] Added Experiments section", {""}, "", function()
+end, true)
+menu.action(change, "[1.5] Added Plugin Support", {""}, "", function()
+end, true)
+menu.action(change, "[1.6] Added 5M+ Special Cargo", {""}, "", function()
+end, true)
+menu.action(change, "[1.7] Added Instant Finish Cayo/Casino", {""}, "", function()
+end, true)
+menu.action(change, "[1.8] Added Instant Finish Doomsday Heist", {""}, "", function()
+end, true)
+menu.action(change, "[1.9] Added [Experiment] Auto-Setup Doomsday Heist", {""}, "", function()
+end, true)
+menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
+    menu.trigger_commands("luanmcm")
+    util.yield(100)
+    menu.trigger_commands("luanetworkmenu")
+    util.toast("Plugin Loaded.")
+    end, true)
+    menu.action(plugins, "[Plugin] Troll Spam", {"nmt"}, "Will start the Troll Spam plugin.", function()
+        menu.trigger_commands("luanmts")
+        util.yield(100)
+        menu.trigger_commands("luanetworkmenu")
+        util.toast("Plugin Loaded.")
+        end, true)
+        menu.action(plugins, "[Plugin] Toast joining player's level on join", {"nml"}, "Will start the Toast joining player's level on join plugin.", function()
+            menu.trigger_commands("luanmtl")
+            util.yield(100)
+            menu.trigger_commands("luanetworkmenu")
+            util.toast("Plugin Loaded.")
+            end, true)
+menu.action(experiments, "[B] Check for Update", {}, "This button is broken as of now, please give me time to figure out how to fix this.", function()
+    util.toast("[WARN] This does NOT work. But I will attempt it anyways for you :)")
+    util.yield(1000)
+    auto_update_config.check_interval = 0
+    util.toast("Checking for updates")
+    auto_updater.run_auto_update(auto_update_config)
+end)
+menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell price for 5M+ (Use once, if you wish to unapply this just swap lobbies).", function()
+    SET_INT_GLOBAL(262145, 20000000)
+    SET_INT_GLOBAL(278133,5780000)
+    SET_INT_GLOBAL(278131,5780000)
+    SET_INT_GLOBAL(278135,5780000)
+    SET_INT_GLOBAL(278129,5780000)
+    SET_INT_GLOBAL(278127,5780000)
+    SET_INT_GLOBAL(278137,5780000)
+    SET_INT_GLOBAL(277933,5791000)
+    SET_INT_GLOBAL(277934,2895500)
+    SET_INT_GLOBAL(277935,1930333)
+    SET_INT_GLOBAL(277936,1158200)
+    SET_INT_GLOBAL(277937,827285)
+    SET_INT_GLOBAL(277938,643444)
+    SET_INT_GLOBAL(277939,413642)
+    SET_INT_GLOBAL(277940,304789)
+    SET_INT_GLOBAL(277941,241291)
+    SET_INT_GLOBAL(277942,199689)
+    SET_INT_GLOBAL(277943,170323)
+    SET_INT_GLOBAL(277944,148487)
+    SET_INT_GLOBAL(277945,131613)
+    SET_INT_GLOBAL(277946,118183)
+    SET_INT_GLOBAL(277947,98152)
+    SET_INT_GLOBAL(277948,83927)
+    SET_INT_GLOBAL(277949,73303)
+    SET_INT_GLOBAL(277950,65067)
+    SET_INT_GLOBAL(277951,58494)
+    SET_INT_GLOBAL(277952,52645)
+    SET_INT_GLOBAL(277953,52171)
+    end, true)
+    menu.action(heist, "[?] Instant finish Casino", {"instacasino"}, "Will instantly finish the Casino Heist.", function()
+        menu.trigger_commands("scripthost")
+        util.yield_once()
+        SET_INT_LOCAL("fm_mission_controller", 19707 + 1741, 151)
+        SET_INT_LOCAL("fm_mission_controller", 19707 + 2686, 10000000)
+        SET_INT_LOCAL("fm_mission_controller", 27471 + 859, 99999)
+        SET_INT_LOCAL("fm_mission_controller", 31585 + 69, 99999)
+        SET_INT_LOCAL("fm_mission_controller", 31585 + 97, 79)
+    end)
+    menu.action(heist, "[?] Instant finish Cayo", {"instacayo"}, "Will instantly finish the Cayo Perico heist.", function()
+        menu.trigger_commands("scripthost")
+        util.yield_once()
+    
+        SET_INT_LOCAL("fm_mission_controller_2020", 42279 + 1, 51338752)
+        SET_INT_LOCAL("fm_mission_controller_2020", 42279 + 1375 + 1, 50)
+    end)
+    menu.action(heist, "[?] Instant finish Doomsday", {"instadoom"}, "Will instantly finish the Doomsday heist.", function()
+        menu.trigger_commands("scripthost")
+        util.yield_once()
+
+        SET_INT_LOCAL("fm_mission_controller", 19707, 12)
+        SET_INT_LOCAL("fm_mission_controller", 28329 + 1, 99999)
+        SET_INT_LOCAL("fm_mission_controller", 31585 + 69, 99999)
+    end)
+    local CASINO_PRESETS = menu.list(CASINO_HEIST, ("Automated Presets"), {}, ("Entrance and Exit will be selected 'Staff Lobby' and Buyer will be selected 'Low' by HC. But, selected Buyer won't be visible at the board somehow, don't change those options when you are before launching the heist.") .. "\n\n" .. ("Please don't forget that buyer should be selected 'Low'! Otherwise, won't get money."), function(); end)
+
+        local CASINO_PRESETS_DIAMOND = menu.list(CASINO_PRESETS, ("Diamonds"), {}, ("$3.5 Million For All Players"), function(); end)
+
+            DIAMOND_SS = menu.toggle(CASINO_PRESETS_DIAMOND, ("Silent & Sneaky Approach"), {"hccahdiasil"}, (false), function()
+                if menu.get_value(DIAMOND_SS) then
+                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
+                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
+                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
+
+                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
+                    STAT_SET_INT("H3OPT_MASKS", 4)
+                    STAT_SET_INT("H3OPT_WEAPS", 1)
+                    STAT_SET_INT("H3OPT_VEHS", 3)
+                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
+                    STAT_SET_INT("H3_LAST_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_APPROACH", 1)
+                    STAT_SET_INT("H3_HARD_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_TARGET", 3)
+                    STAT_SET_INT("H3OPT_POI", 1023)
+                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
+                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
+                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
+                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
+                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
+                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
+                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
+                    STAT_SET_INT("H3OPT_BITSET1", 127)
+                    STAT_SET_INT("H3OPT_BITSET0", 262270)
+                else
+                    menu.apply_default_state(CAH_1P_CUT)
+                    menu.apply_default_state(CAH_1P_CUT_LOOP)
+                    menu.apply_default_state(CAH_2P_CUT)
+                    menu.apply_default_state(CAH_2P_CUT_LOOP)
+                    menu.apply_default_state(CAH_3P_CUT)
+                    menu.apply_default_state(CAH_3P_CUT_LOOP)
+                    menu.apply_default_state(CAH_4P_CUT)
+                    menu.apply_default_state(CAH_4P_CUT_LOOP)
+                end
+
+                while menu.get_value(DIAMOND_SS) do
+                    SET_INT_GLOBAL(262145 + 28808, 1410065408) -- 1277889925
+                    menu.set_value(CAH_1P_CUT, 60)
+                    menu.set_value(CAH_1P_CUT_LOOP, true)
+                    menu.set_value(CAH_2P_CUT, 147)
+                    menu.set_value(CAH_2P_CUT_LOOP, true)
+                    menu.set_value(CAH_3P_CUT, 147)
+                    menu.set_value(CAH_3P_CUT_LOOP, true)
+                    menu.set_value(CAH_4P_CUT, 147)
+                    menu.set_value(CAH_4P_CUT_LOOP, true)
+
+                    util.yield_once()
+                end
+            end)
+
+            DIAMOND_BA = menu.toggle(CASINO_PRESETS_DIAMOND, ("BigCon Approach"), {"hccahdiabig"}, (false), function()
+                if menu.get_value(DIAMOND_BA) then
+                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
+                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
+                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
+
+                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
+                    STAT_SET_INT("H3OPT_MASKS", 2)
+                    STAT_SET_INT("H3OPT_WEAPS", 1)
+                    STAT_SET_INT("H3OPT_VEHS", 3)
+                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
+                    STAT_SET_INT("H3_LAST_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_APPROACH", 2)
+                    STAT_SET_INT("H3_HARD_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_TARGET", 3)
+                    STAT_SET_INT("H3OPT_POI", 1023)
+                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
+                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
+                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
+                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
+                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
+                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
+                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
+                    STAT_SET_INT("H3OPT_BITSET1", 159)
+                    STAT_SET_INT("H3OPT_BITSET0", 524118)
+                else
+                    menu.apply_default_state(CAH_1P_CUT)
+                    menu.apply_default_state(CAH_1P_CUT_LOOP)
+                    menu.apply_default_state(CAH_2P_CUT)
+                    menu.apply_default_state(CAH_2P_CUT_LOOP)
+                    menu.apply_default_state(CAH_3P_CUT)
+                    menu.apply_default_state(CAH_3P_CUT_LOOP)
+                    menu.apply_default_state(CAH_4P_CUT)
+                    menu.apply_default_state(CAH_4P_CUT_LOOP)
+                end
+
+                while menu.get_value(DIAMOND_BA) do
+                    SET_INT_GLOBAL(262145 + 28808, 1410065408)
+                    menu.set_value(CAH_1P_CUT, 60)
+                    menu.set_value(CAH_1P_CUT_LOOP, true)
+                    menu.set_value(CAH_2P_CUT, 147)
+                    menu.set_value(CAH_2P_CUT_LOOP, true)
+                    menu.set_value(CAH_3P_CUT, 147)
+                    menu.set_value(CAH_3P_CUT_LOOP, true)
+                    menu.set_value(CAH_4P_CUT, 147)
+                    menu.set_value(CAH_4P_CUT_LOOP, true)
+
+                    util.yield_once()
+                end
+            end)
+
+            DIAMOND_AA = menu.toggle(CASINO_PRESETS_DIAMOND, ("Aggressive Approach"), {"hccahdiaagg"}, (false), function()
+                if menu.get_value(DIAMOND_AA) then
+                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
+                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
+                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
+
+                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
+                    STAT_SET_INT("H3OPT_MASKS", 4)
+                    STAT_SET_INT("H3OPT_WEAPS", 1)
+                    STAT_SET_INT("H3OPT_VEHS", 3)
+                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
+                    STAT_SET_INT("H3_LAST_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_APPROACH", 3)
+                    STAT_SET_INT("H3_HARD_APPROACH", 0)
+                    STAT_SET_INT("H3OPT_TARGET", 3)
+                    STAT_SET_INT("H3OPT_POI", 1023)
+                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
+                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
+                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
+                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
+                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
+                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
+                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
+                    STAT_SET_INT("H3OPT_BITSET1", 799)
+                    STAT_SET_INT("H3OPT_BITSET0", 3670102)
+                else
+                    menu.apply_default_state(CAH_1P_CUT)
+                    menu.apply_default_state(CAH_1P_CUT_LOOP)
+                    menu.apply_default_state(CAH_2P_CUT)
+                    menu.apply_default_state(CAH_2P_CUT_LOOP)
+                    menu.apply_default_state(CAH_3P_CUT)
+                    menu.apply_default_state(CAH_3P_CUT_LOOP)
+                    menu.apply_default_state(CAH_4P_CUT)
+                    menu.apply_default_state(CAH_4P_CUT_LOOP)
+                end
+
+                while menu.get_value(DIAMOND_AA) do
+                    SET_INT_GLOBAL(262145 + 28808, 1410065408)
+                    menu.set_value(CAH_1P_CUT, 60)
+                    menu.set_value(CAH_1P_CUT_LOOP, true)
+                    menu.set_value(CAH_2P_CUT, 147)
+                    menu.set_value(CAH_2P_CUT_LOOP, true)
+                    menu.set_value(CAH_3P_CUT, 147)
+                    menu.set_value(CAH_3P_CUT_LOOP, true)
+                    menu.set_value(CAH_4P_CUT, 147)
+                    menu.set_value(CAH_4P_CUT_LOOP, true)
+
+                    util.yield_once()
+                end
+            end)
+
+
+    menu.action(meanings, "! = Risk", {""}, "", function()
+    end, true)
+    menu.action(meanings, "? = May/May not work.", {""}, "", function()
+    menu.action(meanings, "B = Broken option.", {""}, "", function()
+    end, true)
+    end, true)
+    menu.action(meanings, "WARN = Warning message.", {""}, "", function()
+    end, true)
+    menu.action(meanings, "Plugin = Addon options for the script.", {""}, "", function()
+    end, true)
+
+local end_time = util.current_time_millis()
+local load_time = end_time - start_time
+
+util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)

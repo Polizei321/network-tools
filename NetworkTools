@@ -34,40 +34,8 @@ local experiments = menu.list(menu.my_root(), "Experiments")
 local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heists Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
-local DOOMS_HEIST = menu.list(menu.my_root(), ("Doomsday Heist"), {"hcdooms"}, "", function(); end)
-local CASINO_HEIST = menu.list(menu.my_root(), ("Diamond Casino Heist"), {"hccah"}, "", function(); end)
-function IS_MPPLY_STAT(stat)
-    local MpplyStats = {
-        "MP_PLAYING_TIME",
-        "MP_NGDLCPSTAT_INT0",
-        
-        "MP_TUPSTAT_INT0",
-        "MP_TUPSTAT_INT1",
-        "MP_TUPSTAT_INT2",
-        "MP_TUPSTAT_INT3",
-        "MP_TUPSTAT_BOOL0",
-        "MP_NGPSTAT_INT0",
-        "MP_NGPSTAT_BOOL0",
-        "MP_NGDLCPSTAT_BOOL0",
-        "MP_PLAYING_TIME_NEW",
-        "MP_PSTAT_BOOL0",
-        "MP_PSTAT_BOOL1",
-        "MP_PSTAT_BOOL2",
-        "MP_PSTAT_INT0",
-        "MP_PSTAT_INT1",
-        "MP_PSTAT_INT2",
-    }
-    for _, mpply_stat in pairs(MpplyStats) do
-        if stat == mpply_stat then
-            return true
-        end
-    end
-
-    if string.find(stat, "MPPLY_") then
-        return true
-    else
-        return false
-    end
+function SET_INT_GLOBAL(global, value)
+    memory.write_int(memory.script_global(global), value)
 end
 function ADD_MP_INDEX(stat)
     if not IS_MPPLY_STAT(stat) then
@@ -75,114 +43,12 @@ function ADD_MP_INDEX(stat)
     end
     return stat
 end
-
 function STAT_SET_INT(stat, value)
     STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
 end
-function STAT_SET_FLOAT(stat, value)
-    STATS.STAT_SET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), value, true)
-end
-function STAT_SET_BOOL(stat, value)
-    STATS.STAT_SET_BOOL(util.joaat(ADD_MP_INDEX(stat)), value, true)
-end
-function STAT_SET_STRING(stat, value)
-    STATS.STAT_SET_STRING(util.joaat(ADD_MP_INDEX(stat)), value, true)
-end
-function STAT_SET_DATE(stat, year, month, day, hour, min)
-    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
-    memory.write_int(DatePTR, year)
-    memory.write_int(DatePTR+8, month)
-    memory.write_int(DatePTR+16, day)
-    memory.write_int(DatePTR+24, hour)
-    memory.write_int(DatePTR+32, min)
-    memory.write_int(DatePTR+40, 0) -- Seconds
-    memory.write_int(DatePTR+48, 0) -- Milliseconds
-    STATS.STAT_SET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
-end
-
-function STAT_SET_MASKED_INT(stat, value1, value2)
-    STATS.STAT_SET_MASKED_INT(util.joaat(ADD_MP_INDEX(stat)), value1, value2, 8, true)
-end
-function SET_PACKED_STAT_BOOL_CODE(stat, value)
-    STATS.SET_PACKED_STAT_BOOL_CODE(stat, value, util.get_char_slot())
-end
-function STAT_SET_INCREMENT(stat, value)
-    STATS.STAT_INCREMENT(util.joaat(ADD_MP_INDEX(stat)), value, true)
-end
-
-function STAT_GET_INT(stat)
-    local IntPTR = memory.alloc_int()
-    STATS.STAT_GET_INT(util.joaat(ADD_MP_INDEX(stat)), IntPTR, -1)
-    return memory.read_int(IntPTR)
-end
-function STAT_GET_FLOAT(stat)
-    local FloatPTR = memory.alloc_int()
-    STATS.STAT_GET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), FloatPTR, -1)
-    return tonumber(string.format("%.3f", memory.read_float(FloatPTR)))
-end
-function STAT_GET_BOOL(stat)
-    if STAT_GET_INT(stat) ~= 0 then
-        return "true"
-    else
-        return "false"
-    end
-end
-function STAT_GET_STRING(stat)
-    return STATS.STAT_GET_STRING(util.joaat(ADD_MP_INDEX(stat)), -1)
-end
-function STAT_GET_DATE(stat, type)
-    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
-    STATS.STAT_GET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
-    local DateType = {
-        "Years",
-        "Months",
-        "Days",
-        "Hours",
-        "Mins",
-        -- Seconds,
-        -- Milliseconds,
-    }
-    for i = 1, #DateType do
-        if type == DateType[i] then
-            return memory.read_int(DatePTR + 8 * (i - 1))
-        end
-    end
-end
-
-function SET_INT_GLOBAL(global, value)
-    memory.write_int(memory.script_global(global), value)
-end
-function SET_FLOAT_GLOBAL(global, value)
-    memory.write_float(memory.script_global(global), value)
-end
-
-function GET_INT_GLOBAL(global)
-    return memory.read_int(memory.script_global(global))
-end
-
-function SET_PACKED_INT_GLOBAL(start_global, end_global, value)
-    for i = start_global, end_global do
-        SET_INT_GLOBAL(262145 + i, value)
-    end
-end
-
 function SET_INT_LOCAL(script, script_local, value)
     if memory.script_local(script, script_local) ~= 0 then
         memory.write_int(memory.script_local(script, script_local), value)
-    end
-end
-function SET_FLOAT_LOCAL(script, script_local, value)
-    if memory.script_local(script, script_local) ~= 0 then
-        memory.write_float(memory.script_local(script, script_local), value)
-    end
-end
-
-function GET_INT_LOCAL(script, script_local)
-    if memory.script_local(script, script_local) ~= 0 then
-        local ReadLocal = memory.read_int(memory.script_local(script, script_local))
-        if ReadLocal ~= nil then
-            return ReadLocal
-        end
     end
 end
 util.keep_running()
@@ -371,164 +237,14 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
         SET_INT_LOCAL("fm_mission_controller", 28329 + 1, 99999)
         SET_INT_LOCAL("fm_mission_controller", 31585 + 69, 99999)
     end)
-    local CASINO_PRESETS = menu.list(CASINO_HEIST, ("Automated Presets"), {}, ("Entrance and Exit will be selected 'Staff Lobby' and Buyer will be selected 'Low' by HC. But, selected Buyer won't be visible at the board somehow, don't change those options when you are before launching the heist.") .. "\n\n" .. ("Please don't forget that buyer should be selected 'Low'! Otherwise, won't get money."), function(); end)
-
-        local CASINO_PRESETS_DIAMOND = menu.list(CASINO_PRESETS, ("Diamonds"), {}, ("$3.5 Million For All Players"), function(); end)
-
-            DIAMOND_SS = menu.toggle(CASINO_PRESETS_DIAMOND, ("Silent & Sneaky Approach"), {"hccahdiasil"}, (false), function()
-                if menu.get_value(DIAMOND_SS) then
-                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
-                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
-                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
-
-                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
-                    STAT_SET_INT("H3OPT_MASKS", 4)
-                    STAT_SET_INT("H3OPT_WEAPS", 1)
-                    STAT_SET_INT("H3OPT_VEHS", 3)
-                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
-                    STAT_SET_INT("H3_LAST_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_APPROACH", 1)
-                    STAT_SET_INT("H3_HARD_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_TARGET", 3)
-                    STAT_SET_INT("H3OPT_POI", 1023)
-                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
-                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
-                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
-                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
-                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
-                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
-                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
-                    STAT_SET_INT("H3OPT_BITSET1", 127)
-                    STAT_SET_INT("H3OPT_BITSET0", 262270)
-                else
-                    menu.apply_default_state(CAH_1P_CUT)
-                    menu.apply_default_state(CAH_1P_CUT_LOOP)
-                    menu.apply_default_state(CAH_2P_CUT)
-                    menu.apply_default_state(CAH_2P_CUT_LOOP)
-                    menu.apply_default_state(CAH_3P_CUT)
-                    menu.apply_default_state(CAH_3P_CUT_LOOP)
-                    menu.apply_default_state(CAH_4P_CUT)
-                    menu.apply_default_state(CAH_4P_CUT_LOOP)
-                end
-
-                while menu.get_value(DIAMOND_SS) do
-                    SET_INT_GLOBAL(262145 + 28808, 1410065408) -- 1277889925
-                    menu.set_value(CAH_1P_CUT, 60)
-                    menu.set_value(CAH_1P_CUT_LOOP, true)
-                    menu.set_value(CAH_2P_CUT, 147)
-                    menu.set_value(CAH_2P_CUT_LOOP, true)
-                    menu.set_value(CAH_3P_CUT, 147)
-                    menu.set_value(CAH_3P_CUT_LOOP, true)
-                    menu.set_value(CAH_4P_CUT, 147)
-                    menu.set_value(CAH_4P_CUT_LOOP, true)
-
-                    util.yield_once()
-                end
-            end)
-
-            DIAMOND_BA = menu.toggle(CASINO_PRESETS_DIAMOND, ("BigCon Approach"), {"hccahdiabig"}, (false), function()
-                if menu.get_value(DIAMOND_BA) then
-                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
-                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
-                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
-
-                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
-                    STAT_SET_INT("H3OPT_MASKS", 2)
-                    STAT_SET_INT("H3OPT_WEAPS", 1)
-                    STAT_SET_INT("H3OPT_VEHS", 3)
-                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
-                    STAT_SET_INT("H3_LAST_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_APPROACH", 2)
-                    STAT_SET_INT("H3_HARD_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_TARGET", 3)
-                    STAT_SET_INT("H3OPT_POI", 1023)
-                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
-                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
-                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
-                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
-                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
-                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
-                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
-                    STAT_SET_INT("H3OPT_BITSET1", 159)
-                    STAT_SET_INT("H3OPT_BITSET0", 524118)
-                else
-                    menu.apply_default_state(CAH_1P_CUT)
-                    menu.apply_default_state(CAH_1P_CUT_LOOP)
-                    menu.apply_default_state(CAH_2P_CUT)
-                    menu.apply_default_state(CAH_2P_CUT_LOOP)
-                    menu.apply_default_state(CAH_3P_CUT)
-                    menu.apply_default_state(CAH_3P_CUT_LOOP)
-                    menu.apply_default_state(CAH_4P_CUT)
-                    menu.apply_default_state(CAH_4P_CUT_LOOP)
-                end
-
-                while menu.get_value(DIAMOND_BA) do
-                    SET_INT_GLOBAL(262145 + 28808, 1410065408)
-                    menu.set_value(CAH_1P_CUT, 60)
-                    menu.set_value(CAH_1P_CUT_LOOP, true)
-                    menu.set_value(CAH_2P_CUT, 147)
-                    menu.set_value(CAH_2P_CUT_LOOP, true)
-                    menu.set_value(CAH_3P_CUT, 147)
-                    menu.set_value(CAH_3P_CUT_LOOP, true)
-                    menu.set_value(CAH_4P_CUT, 147)
-                    menu.set_value(CAH_4P_CUT_LOOP, true)
-
-                    util.yield_once()
-                end
-            end)
-
-            DIAMOND_AA = menu.toggle(CASINO_PRESETS_DIAMOND, ("Aggressive Approach"), {"hccahdiaagg"}, (false), function()
-                if menu.get_value(DIAMOND_AA) then
-                    menu.trigger_commands("hccahbuyer low"); util.yield_once()
-                    menu.trigger_commands("hccahentrance stafflobby"); util.yield_once()
-                    menu.trigger_commands("hccahexit stafflobby"); util.yield_once()
-
-                    STAT_SET_INT("H3_COMPLETEDPOSIX", -1)
-                    STAT_SET_INT("H3OPT_MASKS", 4)
-                    STAT_SET_INT("H3OPT_WEAPS", 1)
-                    STAT_SET_INT("H3OPT_VEHS", 3)
-                    STAT_SET_INT("CAS_HEIST_FLOW", -1)
-                    STAT_SET_INT("H3_LAST_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_APPROACH", 3)
-                    STAT_SET_INT("H3_HARD_APPROACH", 0)
-                    STAT_SET_INT("H3OPT_TARGET", 3)
-                    STAT_SET_INT("H3OPT_POI", 1023)
-                    STAT_SET_INT("H3OPT_ACCESSPOINTS", 2047)
-                    STAT_SET_INT("H3OPT_CREWWEAP", 4)
-                    STAT_SET_INT("H3OPT_CREWDRIVER", 3)
-                    STAT_SET_INT("H3OPT_CREWHACKER", 4)
-                    STAT_SET_INT("H3OPT_DISRUPTSHIP", 3)
-                    STAT_SET_INT("H3OPT_BODYARMORLVL", -1)
-                    STAT_SET_INT("H3OPT_KEYLEVELS", 2)
-                    STAT_SET_INT("H3OPT_BITSET1", 799)
-                    STAT_SET_INT("H3OPT_BITSET0", 3670102)
-                else
-                    menu.apply_default_state(CAH_1P_CUT)
-                    menu.apply_default_state(CAH_1P_CUT_LOOP)
-                    menu.apply_default_state(CAH_2P_CUT)
-                    menu.apply_default_state(CAH_2P_CUT_LOOP)
-                    menu.apply_default_state(CAH_3P_CUT)
-                    menu.apply_default_state(CAH_3P_CUT_LOOP)
-                    menu.apply_default_state(CAH_4P_CUT)
-                    menu.apply_default_state(CAH_4P_CUT_LOOP)
-                end
-
-                while menu.get_value(DIAMOND_AA) do
-                    SET_INT_GLOBAL(262145 + 28808, 1410065408)
-                    menu.set_value(CAH_1P_CUT, 60)
-                    menu.set_value(CAH_1P_CUT_LOOP, true)
-                    menu.set_value(CAH_2P_CUT, 147)
-                    menu.set_value(CAH_2P_CUT_LOOP, true)
-                    menu.set_value(CAH_3P_CUT, 147)
-                    menu.set_value(CAH_3P_CUT_LOOP, true)
-                    menu.set_value(CAH_4P_CUT, 147)
-                    menu.set_value(CAH_4P_CUT_LOOP, true)
-
-                    util.yield_once()
-                end
-            end)
-
-
+    menu.action(experiments, "[?] Act II Auto-Setup", {"setupdoom"}, "Will setup the Doomsday Heist.", function()
+        menu.trigger_commands("scripthost")
+        util.yield_once()
+    
+        STAT_SET_INT("GANGOPS_FLOW_MISSION_PROG", 240)
+        STAT_SET_INT("GANGOPS_HEIST_STATUS", -229378)
+        STAT_SET_INT("GANGOPS_FLOW_NOTIFICATIONS", 1557)
+    end)
     menu.action(meanings, "! = Risk", {""}, "", function()
     end, true)
     menu.action(meanings, "? = May/May not work.", {""}, "", function()
@@ -544,4 +260,3 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
-

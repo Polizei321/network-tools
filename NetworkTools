@@ -26,4 +26,4 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
-menu.trigger_commands("yeet")
+util.toast("Hi")

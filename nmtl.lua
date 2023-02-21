@@ -26,10 +26,6 @@ auto_updater.run_auto_update({
     script_relpath=SCRIPT_RELPATH,
     verify_file_begins_with="--"
 })
-menu.action(menu.my_root(), "Return to the Network Menu", {}, "Sends you back to the main menu.", function()
-    menu.trigger_commands("luanetworkmenu")
-end, true)
-util.toast("[LEVEL] Starting Network Menu if it isnt already loaded.")
 local function on_player_join(player_id)
     local player_name = players.get_name(player_id)
     local player_rank = players.get_rank(player_id)

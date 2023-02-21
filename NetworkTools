@@ -32,8 +32,11 @@ local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")
 local experiments = menu.list(menu.my_root(), "Experiments")
 local plugins = menu.list(menu.my_root(), "Plugins")
-local heist = menu.list(menu.my_root(), "Heists Utilities")
+local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
+menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
+    util.restart_script()
+end)
 function SET_INT_GLOBAL(global, value)
     memory.write_int(memory.script_global(global), value)
 end
@@ -71,7 +74,7 @@ menu.action(
     {"remotebantest"},
     "Will send a single remote kick.",
     function()
-        menu.trigger_command(menu.ref_by_path("Online>Player History>TTARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>TARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
         util.log("[NETWORK TOOLS] Sending a manual remote kick.")
         util.toast("[NETWORK TOOLS] Sending a manual remote kick.")
     end,
@@ -260,3 +263,4 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+

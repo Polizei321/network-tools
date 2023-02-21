@@ -36,10 +36,6 @@ local setPedCombatAttr = PED.SET_PED_COMBAT_ATTRIBUTES
 local giveWeaponToPed = WEAPON.GIVE_WEAPON_TO_PED
 local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 
-menu.action(menu.my_root(), "Return to the Network Menu", {}, "Sends you back to the main menu.", function()
-    menu.trigger_commands("luanetworkmenu")
-end, true)
-util.toast("[CRASH] Starting Network Menu if it isnt already loaded.")
 menu.divider(menu.player_root(pid), "Network Menu Crash Plugin")
 menu.action(menu.player_root(pid), "Invalid Object Crash", {"networkcrash"}, "Sends Invalid Objects to crash the target.", function()
     if not players.exists(pid) then

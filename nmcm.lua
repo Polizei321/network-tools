@@ -38,6 +38,7 @@ local noNeedModel = STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED
 
 menu.divider(menu.player_root(pid), "Network Menu Crash Plugin")
 menu.action(menu.player_root(pid), "Invalid Object Crash", {"networkcrash"}, "Sends Invalid Objects to crash the target.", function()
+    util.toast("Execute again if an error occurs.")
     if not players.exists(pid) then
         util.stop_thread()
     end

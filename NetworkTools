@@ -40,6 +40,7 @@ menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check 
     util.restart_script()
 end)
 util.require_natives('1660775568-uno')
+util.require_natives("natives-1672190175")
 local nativeNameSpaces = {
   'HUD',
 }
@@ -1181,3 +1182,4 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+

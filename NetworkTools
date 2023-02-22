@@ -34,9 +34,36 @@ local experiments = menu.list(menu.my_root(), "Experiments")
 local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
+local propertytp = menu.list(menu.my_root(), "Property Teleports")
+local recovery = menu.list(menu.my_root(), "Recovery")
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
     util.restart_script()
 end)
+util.require_natives('1660775568-uno')
+local nativeNameSpaces = {
+  'HUD',
+}
+local function get_waypoint_v3()
+    if HUD.IS_WAYPOINT_ACTIVE() then
+        local blip = HUD.GET_FIRST_BLIP_INFO_ID(8)
+        local waypoint_pos = HUD.GET_BLIP_COORDS(blip)
+  
+        local success, Zcoord = util.get_ground_z(waypoint_pos.x, waypoint_pos.y)
+        local tries = 0
+        while not success or tries <= 100 do
+            success, Zcoord = util.get_ground_z(waypoint_pos.x, waypoint_pos.y)
+            tries += 1
+            util.yield_once()
+        end
+        if success then
+            waypoint_pos.z = Zcoord
+        end
+  
+        return waypoint_pos
+    else
+        util.toast('No waypoint set.')
+    end
+  end
 function SET_INT_GLOBAL(global, value)
     memory.write_int(memory.script_global(global), value)
 end
@@ -55,7 +82,16 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu. Version 1.9")
+util.toast("Welcome to the Network Menu. Version 1.9 coded for GTA:O version 1.66")
+util.yield(100)
+util.toast("Scanning GTA:O Version...")
+util.yield(500)
+local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8")
+if addr == 0 then
+	util.toast("pattern scan failed")
+else
+	util.toast(memory.read_string(memory.rip(addr + 3)))
+end
 util.log("Welcome to the Network Menu.")
 menu.toggle_loop(
     menu.my_root(),
@@ -161,6 +197,8 @@ menu.action(change, "[1.8] Added Instant Finish Doomsday Heist", {""}, "", funct
 end, true)
 menu.action(change, "[1.9] Added [Experiment] Auto-Setup Doomsday Heist", {""}, "", function()
 end, true)
+menu.action(change, "[2.0 Added Recovery, and Property TP", {""}, "[2.0] Added Recovery, and Property TP", function()
+end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
     util.yield(100)
@@ -259,8 +297,887 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
     menu.action(meanings, "Plugin = Addon options for the script.", {""}, "", function()
     end, true)
 
+    -- property tp from JerryScript --
+local propertyBlips = {
+    [1] = { name = ('Ceo office'),   sprite = 475 },
+    [2] = { name = ('MC clubhouse'), sprite = 492,
+        subProperties = {listName = ('MC businesses'), properties = {
+            [1] = { name = ('Weed farm'),           sprite = 496 },
+            [2] = { name = ('Cocaine lockup'),      sprite = 497 },
+            [3] = { name = ('Document forgery'),    sprite = 498 },
+            [4] = { name = ('Methamphetamine Lab'), sprite = 499 },
+            [5] = { name = ('Counterfeit cash'),    sprite = 500 },
+        }}
+    },
+    [3] = { name = ('Bunker'),     sprite = 557 },
+    [4] = { name = ('Hangar'),     sprite = 569 },
+    [5] = { name = ('Facility'),   sprite = 590 },
+    [6] = { name = ('Night club'), sprite = 614 },
+    [7] = { name = ('Arcade'),     sprite = 740 },
+    [8] = { name = ('Auto shop'),  sprite = 779 },
+    [9] = { name = ('Agency'),     sprite = 826 },
+  }
+  
+  local function getUserPropertyBlip(sprite)
+    local blip = HUD.GET_FIRST_BLIP_INFO_ID(sprite)
+    while blip ~= 0 do
+        local blipColour = HUD.GET_BLIP_COLOUR(blip)
+        if HUD.DOES_BLIP_EXIST(blip) and blipColour != 55 and blipColour != 3 then return blip end
+        blip = HUD.GET_NEXT_BLIP_INFO_ID(sprite)
+    end
+  end
+  
+  local function tpToBlip(blip)
+    local pos = HUD.GET_BLIP_COORDS(blip)
+    local tpEntity = (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and my_cur_car or players.user_ped())
+    ENTITY.SET_ENTITY_COORDS(tpEntity, pos, false, false, false, false)
+  end
+  
+  local propertyTpRefs = {}
+  local function regenerateTpLocations(root)
+    for k, _ in pairs(propertyTpRefs) do
+        menu.delete(propertyTpRefs[k])
+        propertyTpRefs[k] = nil
+    end
+    for i = 1, #propertyBlips do
+        local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
+        if propertyBlip == nil then continue end
+  
+        propertyTpRefs[propertyBlips[i].name] = menu.action(propertytp, propertyBlips[i].name, {}, '', function()
+            if not HUD.DOES_BLIP_EXIST(propertyBlip) then
+                util.toast('Couldn\'t find property.')
+                return
+            end
+            tpToBlip(propertyBlip)
+        end)
+        if propertyBlips[i].subProperties then
+            local subProperties = propertyBlips[i].subProperties
+            local listName = subProperties.listName
+            propertyTpRefs[listName] = menu.list(propertytp, listName, {}, '')
+            for j = 1, #subProperties.properties do
+                local subPropertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
+                if propertyBlip == nil then continue end
+  
+                menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
+                    if not HUD.DOES_BLIP_EXIST(propertyBlip) then
+                        util.toast('Couldn\'t find property.')
+                        return
+                    end
+                    tpToBlip(subPropertyBlip)
+                end)
+            end
+        end
+    end
+  end
+  function IS_MPPLY_STAT(stat)
+    local MpplyStats = {
+        "MP_PLAYING_TIME",
+        "MP_NGDLCPSTAT_INT0",
+        
+        "MP_TUPSTAT_INT0",
+        "MP_TUPSTAT_INT1",
+        "MP_TUPSTAT_INT2",
+        "MP_TUPSTAT_INT3",
+        "MP_TUPSTAT_BOOL0",
+        "MP_NGPSTAT_INT0",
+        "MP_NGPSTAT_BOOL0",
+        "MP_NGDLCPSTAT_BOOL0",
+        "MP_PLAYING_TIME_NEW",
+        "MP_PSTAT_BOOL0",
+        "MP_PSTAT_BOOL1",
+        "MP_PSTAT_BOOL2",
+        "MP_PSTAT_INT0",
+        "MP_PSTAT_INT1",
+        "MP_PSTAT_INT2",
+    }
+    for _, mpply_stat in pairs(MpplyStats) do
+        if stat == mpply_stat then
+            return true
+        end
+    end
+
+    if string.find(stat, "MPPLY_") then
+        return true
+    else
+        return false
+    end
+end
+function ADD_MP_INDEX(stat)
+    if not IS_MPPLY_STAT(stat) then
+        stat = "MP" .. util.get_char_slot() .. "_" .. stat
+    end
+    return stat
+end
+
+function STAT_SET_INT(stat, value)
+    STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_FLOAT(stat, value)
+    STATS.STAT_SET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_BOOL(stat, value)
+    STATS.STAT_SET_BOOL(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_STRING(stat, value)
+    STATS.STAT_SET_STRING(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+function STAT_SET_DATE(stat, year, month, day, hour, min)
+    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    memory.write_int(DatePTR, year)
+    memory.write_int(DatePTR+8, month)
+    memory.write_int(DatePTR+16, day)
+    memory.write_int(DatePTR+24, hour)
+    memory.write_int(DatePTR+32, min)
+    memory.write_int(DatePTR+40, 0) -- Seconds
+    memory.write_int(DatePTR+48, 0) -- Milliseconds
+    STATS.STAT_SET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
+end
+
+function STAT_SET_MASKED_INT(stat, value1, value2)
+    STATS.STAT_SET_MASKED_INT(util.joaat(ADD_MP_INDEX(stat)), value1, value2, 8, true)
+end
+function SET_PACKED_STAT_BOOL_CODE(stat, value)
+    STATS.SET_PACKED_STAT_BOOL_CODE(stat, value, util.get_char_slot())
+end
+function STAT_SET_INCREMENT(stat, value)
+    STATS.STAT_INCREMENT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+end
+
+function STAT_GET_INT(stat)
+    local IntPTR = memory.alloc_int()
+    STATS.STAT_GET_INT(util.joaat(ADD_MP_INDEX(stat)), IntPTR, -1)
+    return memory.read_int(IntPTR)
+end
+function STAT_GET_FLOAT(stat)
+    local FloatPTR = memory.alloc_int()
+    STATS.STAT_GET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), FloatPTR, -1)
+    return tonumber(string.format("%.3f", memory.read_float(FloatPTR)))
+end
+function STAT_GET_BOOL(stat)
+    if STAT_GET_INT(stat) ~= 0 then
+        return "true"
+    else
+        return "false"
+    end
+end
+function STAT_GET_STRING(stat)
+    return STATS.STAT_GET_STRING(util.joaat(ADD_MP_INDEX(stat)), -1)
+end
+function STAT_GET_DATE(stat, type)
+    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    STATS.STAT_GET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
+    local DateType = {
+        "Years",
+        "Months",
+        "Days",
+        "Hours",
+        "Mins",
+        -- Seconds,
+        -- Milliseconds,
+    }
+    for i = 1, #DateType do
+        if type == DateType[i] then
+            return memory.read_int(DatePTR + 8 * (i - 1))
+        end
+    end
+end
+
+function SET_INT_GLOBAL(global, value)
+    memory.write_int(memory.script_global(global), value)
+end
+function SET_FLOAT_GLOBAL(global, value)
+    memory.write_float(memory.script_global(global), value)
+end
+
+function GET_INT_GLOBAL(global)
+    return memory.read_int(memory.script_global(global))
+end
+
+function SET_PACKED_INT_GLOBAL(start_global, end_global, value)
+    for i = start_global, end_global do
+        SET_INT_GLOBAL(262145 + i, value)
+    end
+end
+
+function SET_INT_LOCAL(script, script_local, value)
+    if memory.script_local(script, script_local) ~= 0 then
+        memory.write_int(memory.script_local(script, script_local), value)
+    end
+end
+function SET_FLOAT_LOCAL(script, script_local, value)
+    if memory.script_local(script, script_local) ~= 0 then
+        memory.write_float(memory.script_local(script, script_local), value)
+    end
+end
+
+function GET_INT_LOCAL(script, script_local)
+    if memory.script_local(script, script_local) ~= 0 then
+        local ReadLocal = memory.read_int(memory.script_local(script, script_local))
+        if ReadLocal ~= nil then
+            return ReadLocal
+        end
+    end
+end
+--- Master Unlocker
+
+    local DLC_UNLOCKER = menu.list(recovery, ("DLCs"), {}, "", function(); end)
+
+        local ARENA_TOOL = menu.list(DLC_UNLOCKER, ("Arena Wars DLC"), {}, "", function(); end)
+
+            menu.action(ARENA_TOOL, ("Unlock all Arena Wars Trophies and Toys"), {}, "", function()
+                STAT_SET_INT("ARN_BS_TRINKET_TICKERS", -1)
+                STAT_SET_INT("ARN_BS_TRINKET_SAVED", -1)
+                STAT_SET_INT("AWD_WATCH_YOUR_STEP", 50)
+                STAT_SET_INT("AWD_TOWER_OFFENSE", 50)
+                STAT_SET_INT("AWD_READY_FOR_WAR", 50)
+                STAT_SET_INT("AWD_THROUGH_A_LENS", 50)
+                STAT_SET_INT("AWD_SPINNER", 50)
+                STAT_SET_INT("AWD_YOUMEANBOOBYTRAPS", 50)
+                STAT_SET_INT("AWD_MASTER_BANDITO", 50)
+                STAT_SET_INT("AWD_SITTING_DUCK", 50)
+                STAT_SET_INT("AWD_CROWDPARTICIPATION", 50)
+                STAT_SET_INT("AWD_KILL_OR_BE_KILLED", 50)
+                STAT_SET_INT("AWD_MASSIVE_SHUNT", 50)
+                STAT_SET_INT("AWD_YOURE_OUTTA_HERE", 200)
+                STAT_SET_INT("AWD_WEVE_GOT_ONE", 50)
+                STAT_SET_INT("AWD_ARENA_WAGEWORKER", 1000000)
+                STAT_SET_INT("AWD_TIME_SERVED", 1000)
+                STAT_SET_INT("AWD_TOP_SCORE", 55000)
+                STAT_SET_INT("AWD_CAREER_WINNER", 1000)
+                STAT_SET_INT("ARENAWARS_SP", 209)
+                STAT_SET_INT("ARENAWARS_SKILL_LEVEL", 20)
+                STAT_SET_INT("ARENAWARS_SP_LIFETIME", 209)
+                STAT_SET_INT("ARENAWARS_AP_TIER", 1000)
+                STAT_SET_INT("ARENAWARS_AP_LIFETIME", 47551850)
+                STAT_SET_INT("ARENAWARS_CARRER_UNLK", 44)
+                STAT_SET_INT("ARN_W_THEME_SCIFI", 1000)
+                STAT_SET_INT("ARN_W_THEME_APOC", 1000)
+                STAT_SET_INT("ARN_W_THEME_CONS", 1000)
+                STAT_SET_INT("ARN_W_PASS_THE_BOMB", 1000)
+                STAT_SET_INT("ARN_W_DETONATION", 1000)
+                STAT_SET_INT("ARN_W_ARCADE_RACE", 1000)
+                STAT_SET_INT("ARN_W_CTF", 1000)
+                STAT_SET_INT("ARN_W_TAG_TEAM", 1000)
+                STAT_SET_INT("ARN_W_DESTR_DERBY", 1000)
+                STAT_SET_INT("ARN_W_CARNAGE", 1000)
+                STAT_SET_INT("ARN_W_MONSTER_JAM", 1000)
+                STAT_SET_INT("ARN_W_GAMES_MASTERS", 1000)
+                STAT_SET_INT("ARN_L_PASS_THE_BOMB", 500)
+                STAT_SET_INT("ARN_L_DETONATION", 500)
+                STAT_SET_INT("ARN_L_ARCADE_RACE", 500)
+                STAT_SET_INT("ARN_L_CTF", 500)
+                STAT_SET_INT("ARN_L_TAG_TEAM", 500)
+                STAT_SET_INT("ARN_L_DESTR_DERBY", 500)
+                STAT_SET_INT("ARN_L_CARNAGE", 500)
+                STAT_SET_INT("ARN_L_MONSTER_JAM", 500)
+                STAT_SET_INT("ARN_L_GAMES_MASTERS", 500)
+                STAT_SET_INT("NUMBER_OF_CHAMP_BOUGHT", 1000)
+                STAT_SET_INT("ARN_SPECTATOR_KILLS", 1000)
+                STAT_SET_INT("ARN_LIFETIME_KILLS", 1000)
+                STAT_SET_INT("ARN_LIFETIME_DEATHS", 500)
+                STAT_SET_INT("ARENAWARS_CARRER_WINS", 1000)
+                STAT_SET_INT("ARENAWARS_CARRER_WINT", 1000)
+                STAT_SET_INT("ARENAWARS_MATCHES_PLYD", 1000)
+                STAT_SET_INT("ARENAWARS_MATCHES_PLYDT", 1000)
+                STAT_SET_INT("ARN_SPEC_BOX_TIME_MS", 86400000)
+                STAT_SET_INT("ARN_SPECTATOR_DRONE", 1000)
+                STAT_SET_INT("ARN_SPECTATOR_CAMS", 1000)
+                STAT_SET_INT("ARN_SMOKE", 1000)
+                STAT_SET_INT("ARN_DRINK", 1000)
+                STAT_SET_INT("ARN_VEH_MONSTER", 31000)
+                STAT_SET_INT("ARN_VEH_MONSTER", 41000)
+                STAT_SET_INT("ARN_VEH_MONSTER", 51000)
+                STAT_SET_INT("ARN_VEH_CERBERUS", 1000)
+                STAT_SET_INT("ARN_VEH_CERBERUS2", 1000)
+                STAT_SET_INT("ARN_VEH_CERBERUS3", 1000)
+                STAT_SET_INT("ARN_VEH_BRUISER", 1000)
+                STAT_SET_INT("ARN_VEH_BRUISER2", 1000)
+                STAT_SET_INT("ARN_VEH_BRUISER3", 1000)
+                STAT_SET_INT("ARN_VEH_SLAMVAN4", 1000)
+                STAT_SET_INT("ARN_VEH_SLAMVAN5", 1000)
+                STAT_SET_INT("ARN_VEH_SLAMVAN6", 1000)
+                STAT_SET_INT("ARN_VEH_BRUTUS", 1000)
+                STAT_SET_INT("ARN_VEH_BRUTUS2", 1000)
+                STAT_SET_INT("ARN_VEH_BRUTUS3", 1000)
+                STAT_SET_INT("ARN_VEH_SCARAB", 1000)
+                STAT_SET_INT("ARN_VEH_SCARAB2", 1000)
+                STAT_SET_INT("ARN_VEH_SCARAB3", 1000)
+                STAT_SET_INT("ARN_VEH_DOMINATOR4", 1000)
+                STAT_SET_INT("ARN_VEH_DOMINATOR5", 1000)
+                STAT_SET_INT("ARN_VEH_DOMINATOR6", 1000)
+                STAT_SET_INT("ARN_VEH_IMPALER2", 1000)
+                STAT_SET_INT("ARN_VEH_IMPALER3", 1000)
+                STAT_SET_INT("ARN_VEH_IMPALER4", 1000)
+                STAT_SET_INT("ARN_VEH_ISSI4", 1000)
+                STAT_SET_INT("ARN_VEH_ISSI5", 1000)
+                STAT_SET_INT("ARN_VEH_ISSI", 61000)
+                STAT_SET_INT("ARN_VEH_IMPERATOR", 1000)
+                STAT_SET_INT("ARN_VEH_IMPERATOR2", 1000)
+                STAT_SET_INT("ARN_VEH_IMPERATOR3", 1000)
+                STAT_SET_INT("ARN_VEH_ZR380", 1000)
+                STAT_SET_INT("ARN_VEH_ZR3802", 1000)
+                STAT_SET_INT("ARN_VEH_ZR3803", 1000)
+                STAT_SET_INT("ARN_VEH_DEATHBIKE", 1000)
+                STAT_SET_INT("ARN_VEH_DEATHBIKE2", 1000)
+                STAT_SET_INT("ARN_VEH_DEATHBIKE3", 1000)
+                STAT_SET_BOOL("AWD_BEGINNER", true)
+                STAT_SET_BOOL("AWD_FIELD_FILLER", true)
+                STAT_SET_BOOL("AWD_ARMCHAIR_RACER", true)
+                STAT_SET_BOOL("AWD_LEARNER", true)
+                STAT_SET_BOOL("AWD_SUNDAY_DRIVER", true)
+                STAT_SET_BOOL("AWD_THE_ROOKIE", true)
+                STAT_SET_BOOL("AWD_BUMP_AND_RUN", true)
+                STAT_SET_BOOL("AWD_GEAR_HEAD", true)
+                STAT_SET_BOOL("AWD_DOOR_SLAMMER", true)
+                STAT_SET_BOOL("AWD_HOT_LAP", true)
+                STAT_SET_BOOL("AWD_ARENA_AMATEUR", true)
+                STAT_SET_BOOL("AWD_PAINT_TRADER", true)
+                STAT_SET_BOOL("AWD_SHUNTER", true)
+                STAT_SET_BOOL("AWD_JOCK", true)
+                STAT_SET_BOOL("AWD_WARRIOR", true)
+                STAT_SET_BOOL("AWD_T_BONE", true)
+                STAT_SET_BOOL("AWD_MAYHEM", true)
+                STAT_SET_BOOL("AWD_WRECKER", true)
+                STAT_SET_BOOL("AWD_CRASH_COURSE", true)
+                STAT_SET_BOOL("AWD_ARENA_LEGEND", true)
+                STAT_SET_BOOL("AWD_PEGASUS", true)
+                STAT_SET_BOOL("AWD_UNSTOPPABLE", true)
+                STAT_SET_BOOL("AWD_CONTACT_SPORT", true)
+            end)
+
+            menu.action(ARENA_TOOL, ("Clothing"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(25842, 25909, 1) -- -1782918513, -1597048932
+            end)
+
+        ---
+
+        local SUMMER2020 = menu.list(DLC_UNLOCKER, ("Summer 2020 DLC"), {}, "", function(); end)
+                
+            menu.action(SUMMER2020, ("Summer 2020 Awards"), {}, "", function()
+                STAT_SET_BOOL("AWD_KINGOFQUB3D", true)
+                STAT_SET_BOOL("AWD_QUBISM", true)
+                STAT_SET_BOOL("AWD_QUIBITS", true)
+                STAT_SET_BOOL("AWD_GODOFQUB3D", true)
+                STAT_SET_BOOL("AWD_GOFOR11TH", true)
+                STAT_SET_BOOL("AWD_ELEVENELEVEN", true)
+            end)
+
+            menu.action(SUMMER2020, ("Clothing"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(29685, 29720, 1) -- ENABLE_LOGIN_BCTR_AGED_TEE, ENABLE_LOGIN_LEMON_SPORTS_TRACK_TOP
+            end)
+
+        ---
+
+        local TUNERS_DLC = menu.list(DLC_UNLOCKER, ("LS Tuners DLC"), {}, "", function(); end)
+
+            menu.action(TUNERS_DLC, ("Unlock Awards"), {}, "", function()
+                STAT_SET_INT("AWD_CAR_CLUB_MEM", 100)
+                STAT_SET_INT("AWD_SPRINTRACER", 50)
+                STAT_SET_INT("AWD_STREETRACER", 50)
+                STAT_SET_INT("AWD_PURSUITRACER", 50)
+                STAT_SET_INT("AWD_TEST_CAR", 240)
+                STAT_SET_INT("AWD_AUTO_SHOP", 50)
+                STAT_SET_INT("AWD_CAR_EXPORT", 100)
+                STAT_SET_INT("AWD_GROUNDWORK", 40)
+                STAT_SET_INT("AWD_ROBBERY_CONTRACT", 100)
+                STAT_SET_INT("AWD_FACES_OF_DEATH", 100)
+                STAT_SET_BOOL("AWD_CAR_CLUB", true)
+                STAT_SET_BOOL("AWD_PRO_CAR_EXPORT", true)
+                STAT_SET_BOOL("AWD_UNION_DEPOSITORY", true)
+                STAT_SET_BOOL("AWD_MILITARY_CONVOY", true)
+                STAT_SET_BOOL("AWD_FLEECA_BANK", true)
+                STAT_SET_BOOL("AWD_FREIGHT_TRAIN", true)
+                STAT_SET_BOOL("AWD_BOLINGBROKE_ASS", true)
+                STAT_SET_BOOL("AWD_IAA_RAID", true)
+                STAT_SET_BOOL("AWD_METH_JOB", true)
+                STAT_SET_BOOL("AWD_BUNKER_RAID", true)
+                STAT_SET_BOOL("AWD_STRAIGHT_TO_VIDEO", true)
+                STAT_SET_BOOL("AWD_MONKEY_C_MONKEY_DO", true)
+                STAT_SET_BOOL("AWD_TRAINED_TO_KILL", true)
+                STAT_SET_BOOL("AWD_DIRECTOR", true)
+            end)
+
+        ---
+
+        local CONTRACT_DLC = menu.list(DLC_UNLOCKER, ("The Contract DLC" ), {}, "", function(); end)
+
+            menu.action(CONTRACT_DLC, ("Unlock Animal Masks"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(31859, 31870, 1) -- FIXER_LOGIN_AWARD_FISHMASK_1, FIXER_LOGIN_AWARD_SEALMASK_4
+            end)
+            menu.action(CONTRACT_DLC, ("Unlock DJ Pooh Shirts"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(31871, 31873, 1) -- FIXER_LOGIN_DJ_POOH_ORANGE, FIXER_LOGIN_DJ_POOH_BLUE
+            end)
+
+        ---
+
+        local CRIMINAL_DLC = menu.list(DLC_UNLOCKER, ("The Criminal Enterprises DLC"), {}, "", function(); end) -- https://www.unknowncheats.me/forum/3492512-post53.html
+            
+            menu.action(CRIMINAL_DLC, ("Jackets / Sweaters / Hoodies / Shirts"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(32907, 32914, 1) -- -1967834023, -1263992372
+                SET_PACKED_INT_GLOBAL(32930, 32935, 1) -- -206691492, -1577621449
+            end)
+            menu.action(CRIMINAL_DLC, ("Pants / Caps / Hats"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(32917, 32919, 1) -- 638571354, 96152168
+                SET_PACKED_INT_GLOBAL(32936, 32937, 1) -- -2120678580, -1003907171
+                SET_PACKED_INT_GLOBAL(32988, 33001, 1) -- 191276118, -1484490421
+                SET_PACKED_INT_GLOBAL(33654, 33662, 1) -- SUM2_CHRISTMAS_BEERHAT_LEMON, Between SUM2_CHRISTMAS_BEERHAT_RED_REINDEER and -1267850277
+                SET_INT_GLOBAL(262145 + 32913, 1) -- -339902614
+            end)
+            menu.action(CRIMINAL_DLC, ("Earphones / Masks / Tech Demon"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(33002, 33013, 1) -- -889497715, -1162924007
+                SET_PACKED_INT_GLOBAL(32922, 32927, 1) -- 1096886904, -359187968
+                SET_PACKED_INT_GLOBAL(32942, 32950, 1) -- 190205845, -171130807
+                SET_PACKED_INT_GLOBAL(32954, 32957, 1) -- 1424509866, -1677619307
+                SET_PACKED_INT_GLOBAL(32958, 32983, 1) -- -1285035231, -1792568167
+                SET_INT_GLOBAL(262145 + 32929, 1) -- 505550305
+            end)
+            menu.action(CRIMINAL_DLC, ("Shoes (Sliders) / Tiger"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(32984, 32987, 1) -- 467678514, 169972145
+                SET_PACKED_INT_GLOBAL(33014, 33037, 1) -- 245491514, -141827484
+            end)
+            
+        ---
+
+        local DRUG_WAR = menu.list(DLC_UNLOCKER, ("Drug War DLC"), {}, "", function(); end)
+
+            menu.action(DRUG_WAR, ("Clothing"), {}, (false), function() -- https://www.unknowncheats.me/forum/3635453-post69.html
+                SET_PACKED_INT_GLOBAL(33973, 34112, 1) -- EVENT_LOGIN_DLC22022_ICE_VINYL_JACKET_3, -711496356
+            end)
+
+        ---
+
+    ---
+
+    local UNLOCKER_BUILDING = menu.list(recovery, ("Buildings"), {}, "", function(); end)
+
+        local ARCADE_TOOL = menu.list(UNLOCKER_BUILDING, ("Arcade Unlockers"), {}, "", function(); end)
+
+            menu.action(ARCADE_TOOL, ("Unlock Arcade Trophies and Toys"), {}, "", function()
+                STAT_SET_INT("AWD_PREPARATION", 40)
+                STAT_SET_INT("AWD_ASLEEPONJOB", 20)
+                STAT_SET_INT("AWD_DAICASHCRAB", 100000)
+                STAT_SET_INT("AWD_BIGBRO", 40)
+                STAT_SET_INT("AWD_SHARPSHOOTER", 40)
+                STAT_SET_INT("AWD_RACECHAMP", 40)
+                STAT_SET_INT("AWD_BATSWORD", 1000000)
+                STAT_SET_INT("AWD_COINPURSE", 950000)
+                STAT_SET_INT("AWD_ASTROCHIMP", 3000000)
+                STAT_SET_INT("AWD_MASTERFUL", 40000)
+                STAT_SET_INT("SCGW_NUM_WINS_GANG_0", 50)
+                STAT_SET_INT("SCGW_NUM_WINS_GANG_1", 50)
+                STAT_SET_INT("SCGW_NUM_WINS_GANG_2", 50)
+                STAT_SET_INT("SCGW_NUM_WINS_GANG_3", 50)
+                STAT_SET_INT("CH_ARC_CAB_CLAW_TROPHY", -1)
+                STAT_SET_INT("CH_ARC_CAB_LOVE_TROPHY", -1)
+                STAT_SET_INT("IAP_MAX_MOON_DIST", INT_MAX)
+                STAT_SET_INT("IAP_SCORE_0", 69644)
+                STAT_SET_INT("IAP_SCORE_1", 50333)
+                STAT_SET_INT("IAP_SCORE_2", 63512)
+                STAT_SET_INT("IAP_SCORE_3", 46136)
+                STAT_SET_INT("IAP_SCORE_4", 21638)
+                STAT_SET_INT("IAP_SCORE_5", 2133)
+                STAT_SET_INT("IAP_SCORE_6", 1215)
+                STAT_SET_INT("IAP_SCORE_7", 2444)
+                STAT_SET_INT("IAP_SCORE_8", 38023)
+                STAT_SET_INT("IAP_SCORE_9", 2233)
+                STAT_SET_INT("SCGW_SCORE_1", 50)
+                STAT_SET_INT("SCGW_SCORE_2", 50)
+                STAT_SET_INT("SCGW_SCORE_3", 50)
+                STAT_SET_INT("SCGW_SCORE_4", 50)
+                STAT_SET_INT("SCGW_SCORE_5", 50)
+                STAT_SET_INT("SCGW_SCORE_6", 50)
+                STAT_SET_INT("SCGW_SCORE_7", 50)
+                STAT_SET_INT("SCGW_SCORE_8", 50)
+                STAT_SET_INT("SCGW_SCORE_9", 50)
+
+                for i = 0, 9 do
+                    STAT_SET_INT("IAP_INITIALS_" .. tostring(i), 50)
+                    STAT_SET_INT("DG_DEFENDER_INITIALS_" .. tostring(i), 69644)
+                    STAT_SET_INT("DG_DEFENDER_SCORE_" .. tostring(i), 50)
+                    STAT_SET_INT("DG_MONKEY_INITIALS_" .. tostring(i), 69644)
+                    STAT_SET_INT("DG_MONKEY_SCORE_" .. tostring(i), 50)
+                    STAT_SET_INT("DG_PENETRATOR_INITIALS_" .. tostring(i), 69644)
+                    STAT_SET_INT("DG_PENETRATOR_SCORE_" .. tostring(i), 50)
+                    STAT_SET_INT("GGSM_INITIALS_" .. tostring(i), 69644)
+                    STAT_SET_INT("GGSM_SCORE_" .. tostring(i), 50)
+                    STAT_SET_INT("TWR_INITIALS_" .. tostring(i), 69644)
+                    STAT_SET_INT("TWR_SCORE_" .. tostring(i), 50)
+                end
+
+                STAT_SET_BOOL("AWD_SCOPEOUT", true)
+                STAT_SET_BOOL("AWD_CREWEDUP", true)
+                STAT_SET_BOOL("AWD_MOVINGON", true)
+                STAT_SET_BOOL("AWD_PROMOCAMP", true)
+                STAT_SET_BOOL("AWD_GUNMAN", true)
+                STAT_SET_BOOL("AWD_SMASHNGRAB", true)
+                STAT_SET_BOOL("AWD_INPLAINSI", true)
+                STAT_SET_BOOL("AWD_UNDETECTED", true)
+                STAT_SET_BOOL("AWD_ALLROUND", true)
+                STAT_SET_BOOL("AWD_ELITETHEIF", true)
+                STAT_SET_BOOL("AWD_PRO", true)
+                STAT_SET_BOOL("AWD_SUPPORTACT", true)
+                STAT_SET_BOOL("AWD_SHAFTED", true)
+                STAT_SET_BOOL("AWD_COLLECTOR", true)
+                STAT_SET_BOOL("AWD_DEADEYE", true)
+                STAT_SET_BOOL("AWD_PISTOLSATDAWN", true)
+                STAT_SET_BOOL("AWD_TRAFFICAVOI", true)
+                STAT_SET_BOOL("AWD_CANTCATCHBRA", true)
+                STAT_SET_BOOL("AWD_WIZHARD", true)
+                STAT_SET_BOOL("AWD_APEESCAP", true)
+                STAT_SET_BOOL("AWD_MONKEYKIND", true)
+                STAT_SET_BOOL("AWD_AQUAAPE", true)
+                STAT_SET_BOOL("AWD_KEEPFAITH", true)
+                STAT_SET_BOOL("AWD_TRUELOVE", true)
+                STAT_SET_BOOL("AWD_NEMESIS", true)
+                STAT_SET_BOOL("AWD_FRIENDZONED", true)
+                STAT_SET_BOOL("IAP_CHALLENGE_0", true)
+                STAT_SET_BOOL("IAP_CHALLENGE_1", true)
+                STAT_SET_BOOL("IAP_CHALLENGE_2", true)
+                STAT_SET_BOOL("IAP_CHALLENGE_3", true)
+                STAT_SET_BOOL("IAP_CHALLENGE_4", true)
+                STAT_SET_BOOL("IAP_GOLD_TANK", true)
+                STAT_SET_BOOL("SCGW_WON_NO_DEATHS", true)
+            end)
+
+            menu.action(ARCADE_TOOL, ("Clothing"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(28316, 28336, 1) -- STREET_CRIMES_BOXART_TEE, RED_FAME_OR_SHAME_KRONOS
+            end)
+
+        ---
+
+        menu.toggle_loop(UNLOCKER_BUILDING, ("50 Car Garage"), {}, (true) .. ("This is temporary unlocking. You should enable when after you bought the 50 car garage. Otherwise, will be disappeared."), function() -- https://www.unknowncheats.me/forum/3630894-post39.html
+            SET_INT_GLOBAL(262145 + 32688, 0) -- -1033593930
+            SET_INT_GLOBAL(262145 + 32702, 1) -- -57403007
+        end)
+
+        menu.action(UNLOCKER_BUILDING, ("Acid Lab Equipment Upgrade"), {}, "", function() -- https://www.unknowncheats.me/forum/3631045-post2754.html
+            STAT_SET_INT("AWD_CALLME", 10)
+        end)
+
+        menu.action(UNLOCKER_BUILDING, ("Unlock Nightclub Awards"), {}, "", function()
+            STAT_SET_INT("AWD_DANCE_TO_SOLOMUN", 120)
+            STAT_SET_INT("AWD_DANCE_TO_TALEOFUS", 120)
+            STAT_SET_INT("AWD_DANCE_TO_DIXON", 120)
+            STAT_SET_INT("AWD_DANCE_TO_BLKMAD", 120)
+            STAT_SET_INT("AWD_CLUB_DRUNK", 200)
+            STAT_SET_INT("NIGHTCLUB_VIP_APPEAR", 700)
+            STAT_SET_INT("NIGHTCLUB_JOBS_DONE", 700)
+            STAT_SET_INT("NIGHTCLUB_EARNINGS", 20721002)
+            STAT_SET_INT("HUB_SALES_COMPLETED", 1001)
+            STAT_SET_INT("HUB_EARNINGS", 320721002)
+            STAT_SET_INT("DANCE_COMBO_DURATION_MINS", 3600000)
+            STAT_SET_INT("NIGHTCLUB_PLAYER_APPEAR", 9506)
+            STAT_SET_INT("LIFETIME_HUB_GOODS_SOLD", 784672)
+            STAT_SET_INT("LIFETIME_HUB_GOODS_MADE", 507822)
+            STAT_SET_INT("DANCEPERFECTOWNCLUB", 120)
+            STAT_SET_INT("NUMUNIQUEPLYSINCLUB", 120)
+            STAT_SET_INT("DANCETODIFFDJS", 4)
+            STAT_SET_INT("NIGHTCLUB_HOTSPOT_TIME_MS", 3600000)
+            STAT_SET_INT("NIGHTCLUB_CONT_TOTAL", 20)
+            STAT_SET_INT("NIGHTCLUB_CONT_MISSION", -1)
+            STAT_SET_INT("CLUB_CONTRABAND_MISSION", 1000)
+            STAT_SET_INT("HUB_CONTRABAND_MISSION", 1000)
+            STAT_SET_BOOL("AWD_CLUB_HOTSPOT", true)
+            STAT_SET_BOOL("AWD_CLUB_CLUBBER", true)
+            STAT_SET_BOOL("AWD_CLUB_COORD", true)
+        end)
+
+        menu.action(UNLOCKER_BUILDING, ("Casino Store Ace Masks"), {}, (true) .. ("Make sure click before buying. When you change your session, will be changed to non-unlocked status."), function()
+            SET_PACKED_INT_GLOBAL(27530, 27533, 1) -- VC_ACE_OF_SPADES, VC_ACE_OF_DIAMONDS
+        end)
+
+        menu.action(UNLOCKER_BUILDING, ("Add Cosmetic Decorations To The Office/MC"), {}, ("To apply, sell special crate or vehicle cargo and change your session!"), function()
+            STAT_SET_INT("LIFETIME_BUY_COMPLETE", 1000)
+            STAT_SET_INT("LIFETIME_BUY_UNDERTAKEN", 1000)
+            STAT_SET_INT("LIFETIME_SELL_COMPLETE", 1000)
+            STAT_SET_INT("LIFETIME_SELL_UNDERTAKEN", 1000)
+            STAT_SET_INT("LIFETIME_CONTRA_EARNINGS", 20000000)
+            STAT_SET_INT("LIFETIME_BIKER_BUY_COMPLET", 1000)
+            STAT_SET_INT("LIFETIME_BIKER_BUY_UNDERTA", 1000)
+            STAT_SET_INT("LIFETIME_BIKER_SELL_COMPLET", 1000)
+            STAT_SET_INT("LIFETIME_BIKER_SELL_UNDERTA", 1000)
+            STAT_SET_INT("LIFETIME_BKR_SELL_EARNINGS0", 20000000)
+
+            for i = 1, 5 do
+                STAT_SET_INT("LIFETIME_BIKER_BUY_COMPLET" .. tostring(i), 1000)
+                STAT_SET_INT("LIFETIME_BIKER_BUY_UNDERTA" .. tostring(i), 1000)
+                STAT_SET_INT("LIFETIME_BIKER_SELL_COMPLET" .. tostring(i), 1000)
+                STAT_SET_INT("LIFETIME_BIKER_SELL_UNDERTA" .. tostring(i), 1000)
+                STAT_SET_INT("LIFETIME_BKR_SELL_EARNINGS" .. tostring(i), 20000000)
+            end
+        end)
+
+    ---
+
+    local UNLOCKER_MISSIONS = menu.list(recovery, ("Missions"), {}, "", function(); end)
+
+        menu.action(UNLOCKER_MISSIONS, ("Cayo Perico Unlockables"), {}, (false), function()
+            SET_PACKED_INT_GLOBAL(30209, 30232, 1) -- TOPS_ISLAND_HEIST_EVENT_JACKET_1, PANTS_BIGNESS_TIE_DYE_SWEAT_PANTS
+            SET_PACKED_INT_GLOBAL(30238, 30277, 1) -- ACCESSORIES_GLOW_BRACELET_1, ACCESSORIES_GLOW_NECKLACE_16
+            SET_PACKED_INT_GLOBAL(30282, 30301, 1) -- HEIST4_FESTIVE_MASK_0, HEIST4_FESTIVE_MASK_19
+            SET_PACKED_INT_GLOBAL(30866, 30901, 1) -- ACCESSORIES_SUNGLASSES_1_0, ACCESSORIES_SUNGLASSES_3_11
+            SET_PACKED_INT_GLOBAL(30911, 30916, 1) -- PALMS_TRAX_EVENT_TEE_1, STILL_SLIPPING_EVENT_TEE_2
+        end)
+
+        menu.action(UNLOCKER_MISSIONS, ("Unlock Taxi Missions"), {}, (false), function() -- https://github.com/ImSapphire/unlock_drug_war_content/blob/main/unlock_drug_war_content.lua
+            SET_INT_GLOBAL(262145 + 33770, 1) -- XM22_TAXI_DRIVER_ENABLE
+        end)
+
+        menu.action(UNLOCKER_MISSIONS, ("Unlock Yacht Missions"), {}, "", function()
+            STAT_SET_INT("YACHT_MISSION_PROG", 0)
+            STAT_SET_INT("YACHT_MISSION_FLOW", 21845)
+            STAT_SET_INT("CASINO_DECORATION_GIFT_1", -1)
+        end)
+
+        menu.action(UNLOCKER_MISSIONS, ("Unlock All Contacts"), {}, "", function()
+            STAT_SET_INT("FM_ACT_PHN", -1)
+            STAT_SET_INT("FM_VEH_TX1", -1)
+            STAT_SET_INT("FM_CUT_DONE", -1)
+            STAT_SET_INT("FM_CUT_DONE_2", -1)
+
+            for i = 2, 9 do
+                STAT_SET_INT("FM_ACT_PH" .. tostring(i), -1)
+            end
+        end)
+
+        menu.action(UNLOCKER_MISSIONS, ("Skip Lamar Missions To The Last One"), {}, ("Change your session to apply!"), function() -- https://www.unknowncheats.me/forum/2770402-post3008.html
+            STAT_SET_BOOL("LOW_FLOW_CS_DRV_SEEN", true)
+            STAT_SET_BOOL("LOW_FLOW_CS_TRA_SEEN", true)
+            STAT_SET_BOOL("LOW_FLOW_CS_FUN_SEEN", true)
+            STAT_SET_BOOL("LOW_FLOW_CS_PHO_SEEN", true)
+            STAT_SET_BOOL("LOW_FLOW_CS_FIN_SEEN", true)
+            STAT_SET_BOOL("LOW_BEN_INTRO_CS_SEEN", true)
+            util.yield_once()
+            STAT_SET_INT("LOWRIDER_FLOW_COMPLETE", 3)
+            util.yield_once()
+            STAT_SET_INT("LOW_FLOW_CURRENT_PROG", 8)
+            STAT_SET_INT("LOW_FLOW_CURRENT_CALL", 8)
+        end)
+
+    ---
+
+    local UNLOCKER_ANNIVERSARY = menu.list(recovery, ("Special Anniversaries"), {}, "", function(); end)
+
+        local XMAS_FEATURES = menu.list(UNLOCKER_ANNIVERSARY, ("Christmas"), {}, "", function(); end)
+
+            menu.toggle_loop(XMAS_FEATURES, ("Bypass Christmas Clothing"), {"hcxmas"}, (true) .. ("You must keep this feature enabled in order to wear it!"), function()
+                SET_PACKED_INT_GLOBAL(9393, 9400, 0) -- DISABLE_SNOWBALLS, ENABLE_CLEAR_STRUCT_ON_TRAN_FAIL
+                SET_PACKED_INT_GLOBAL(9401, 9402, 7) -- MAX_NUMBER_OF_SNOWBALLS, PICK_UP_NUMBER_OF_SNOWBALLS
+            end)
+            
+            menu.action(XMAS_FEATURES, ("Unlock Christmas Liveries"), {}, "", function()
+                for i = 1, 20 do
+                    STAT_SET_INT("MPPLY_XMASLIVERIES" .. tostring(i), -1)
+                end
+            end)
+
+            menu.action(XMAS_FEATURES, ("Unlock Christmas Content"), {}, (false), function()
+                SET_PACKED_INT_GLOBAL(9393, 9402, 1) -- DISABLE_SNOWBALLS, PICK_UP_NUMBER_OF_SNOWBALLS
+                SET_PACKED_INT_GLOBAL(9449, 9451, 1) -- TOGGLE_CHRISTMAS_EVE_GIFT, TOGGLE_NEW_YEARS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(12710, 12711, 1) -- XMAS2015_VEHICLE, XMAS2015_MASKS
+                SET_PACKED_INT_GLOBAL(12816, 12819, 1) -- TOGGLE_2015_CHRISTMAS_EVE_GIFT, TOGGLE_2015_CHRISTMAS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(19115, 19118, 1) -- TOGGLE_2016_CHRISTMAS_EVE_GIFT, TOGGLE_2016_CHRISTMAS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(23407, 23415, 1) -- 1840129338, -495986083
+                SET_PACKED_INT_GLOBAL(23434, 23437, 1) -- -101086705, TOGGLE_2017_CHRISTMAS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(25834, 25836, 1) -- XMASDAYGIFT2018_CAR, XMASDAYGIFT2018_CAR2
+                SET_PACKED_INT_GLOBAL(25838, 25841, 1) -- TOGGLE_2018_CHRISTMAS_EVE_GIFT, TOGGLE_2018_CHRISTMAS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(28690, 28693, 1) -- TOGGLE_2019_CHRISTMAS_EVE_GIFT, TOGGLE_2019_CHRISTMAS_DAY_GIFT
+                SET_PACKED_INT_GLOBAL(31756, 31757, 1) -- TOGGLE_2021_CHRISTMAS_GIFT, TOGGLE_2021_NEW_YEARS_GIFT
+                SET_PACKED_INT_GLOBAL(33915, 33916, 1) -- XMASGIFTS2022, NEWYEARSGIFTS2022, https://www.unknowncheats.me/forum/3630405-post34.html (2022)
+                SET_INT_GLOBAL(262145 + 4763, 1) -- TOGGLE_XMAS_CONTENT
+                SET_INT_GLOBAL(262145 + 9185, 1) -- TOGGLE_GIFT_TO_PLAYER_WHEN_LOGGING_ON
+                SET_INT_GLOBAL(262145 + 12713, 1) -- XMAS2015_PYJAMAS
+                SET_INT_GLOBAL(262145 + 19256, 1) -- CHRISTMAS2016_CLOTHING
+                SET_INT_GLOBAL(262145 + 23056, 1) -- CHRISTMAS2017_CLOTHING
+                SET_INT_GLOBAL(262145 + 24203, 1) -- NEW_BH_VEHICLE_TEXT
+                SET_INT_GLOBAL(262145 + 30902, 1) -- TOGGLE_2020_CHRISTMAS_DAY_GIFT
+            end)
+
+        ---
+
+        menu.toggle_loop(UNLOCKER_ANNIVERSARY, ("Independence Day"), {}, (true) .. ("Note: You may need to keep activating to use some of Independence Day's contents."), function()
+            SET_PACKED_INT_GLOBAL(8268, 8274, 1) -- INDEPENDENCE_DAY_DEACTIVATE_FIREWORKS_LAUNCHER, TOGGLE_ACTIVATE_MONSTER_TRUCK
+            SET_PACKED_INT_GLOBAL(8297, 8303, 1) -- UNLOCKINDEPENDENCE_BEER_HAT_1, UNLOCKINDEPENDENCE_STATUE_HAPPINESS_SHIRT
+            SET_INT_GLOBAL(262145 + 8259, 1) -- TOGGLE_ACTIVATE_INDEPENDENCE_PACK
+        end)
+
+        menu.action(UNLOCKER_ANNIVERSARY, ("Valentine's Day"), {}, (false), function()
+            SET_PACKED_INT_GLOBAL(12030, 12034, 1) -- TURN_ON_VALENTINE_WEAPON, TURN_ON_VALENTINE_CLOTHING
+            SET_PACKED_INT_GLOBAL(13396, 13397, 1) -- TURN_ON_VALENTINE_2016_CLOTHING, TURN_ON_VALENTINE_2016_VEHICLE
+            SET_INT_GLOBAL(262145 + 7059, 1) -- TURN_ON_VALENTINES_EVENT
+        end)
+
+    ---
+
+    local UNLOCKER_SHIRT_HAT = menu.list(recovery, ("Clothes"), {}, "", function(); end)
+    
+        menu.action(UNLOCKER_SHIRT_HAT, ("Unlock Hats And Many Shirts"), {}, (false), function()
+            SET_PACKED_INT_GLOBAL(11955, 11964, 1) -- DLC_SHIRT_MELTDOWN, DLC_SHIRT_CAPOLAVORO
+            SET_PACKED_INT_GLOBAL(12591, 12613, 1) -- AWARD_LOW_HATS_MAGNETICS_SCRIPT, AWARD_LOW_TSHIRT_VAMPIRES_ON_THE_BEACH
+            SET_PACKED_INT_GLOBAL(15222, 15236, 1) -- ACCOUNTANTSHIRTEVENT, CRESTTSHIRTEVENT
+            SET_PACKED_INT_GLOBAL(16784, 16790, 1) -- AWARD_JUMPSUIT_WHITE, AWARD_JUMPSUIT_SILVER
+            SET_PACKED_INT_GLOBAL(17532, 17553, 1) -- -1422129266, 310744591
+            SET_PACKED_INT_GLOBAL(21109, 21147, 1) -- AWARD_BLACK_AMMUNATION_CAP, AWARD_RSTAR_LOGO_WHITE
+            SET_PACKED_INT_GLOBAL(24204, 24230, 1) -- AWARD_EMOTION_983_TSHIRT, AWARD_FAKE_VAPID_TSHIRT
+            SET_PACKED_INT_GLOBAL(24704, 24712, 1) -- MAISONETTE_LOS_SANTOS_TSHIRT, TONYS_FUN_HOUSE_TSHIRT
+            SET_PACKED_INT_GLOBAL(24744, 24763, 1) -- AWARD_LS_UR, AWARD_BLAINE_COUNTY_RADIO
+            SET_PACKED_INT_GLOBAL(24918, 24941, 1) -- -726113206, -1910486921
+            SET_PACKED_INT_GLOBAL(25910, 25919, 1) -- -1344369866, 1799248495
+            SET_PACKED_INT_GLOBAL(27027, 27033, 1) -- 760292630, 1007326524
+            SET_PACKED_INT_GLOBAL(30233, 30237, 1) -- HATS_ISLAND_HEIST_EVENT_HAT_1, HATS_ISLAND_HEIST_EVENT_HAT_5
+            SET_PACKED_INT_GLOBAL(31871, 31873, 1) -- FIXER_LOGIN_DJ_POOH_ORANGE, FIXER_LOGIN_DJ_POOH_BLUE
+            SET_INT_GLOBAL(262145 + 25706, 1) -- ENABLE_RACE_CREATOR_JUBILEE
+
+            for i = 31768, 32273 do
+                SET_PACKED_STAT_BOOL_CODE(i, 1) -- freemode.c, https://www.unknowncheats.me/forum/3196991-post328.html
+            end
+        end)
+
+        menu.action(UNLOCKER_SHIRT_HAT, ("Unlock Sasquatch Outfit"), {}, (false), function() -- https://www.unknowncheats.me/forum/3492512-post53.html
+            SET_INT_GLOBAL(262145 + 32938, 1) -- -1966279346
+        end)
+
+        menu.action(UNLOCKER_SHIRT_HAT, ("Unlock 'Don't Cross the Line Tee'"), {}, (false), function()
+            STAT_SET_INT("DCTL_WINS", 500)
+            STAT_SET_INT("DCTL_PLAY_COUNT", 750)
+        end)
+
+    ---
+
+    local UNLOCKER_TATTOO = menu.list(recovery, ("Tattoos"), {}, "", function(); end)
+
+        menu.action(UNLOCKER_TATTOO, ("Unlock Some Tattoos"), {}, "", function()
+            -- https://www.unknowncheats.me/forum/3252891-post942.html
+            STAT_SET_INT("AWD_CAR_BOMBS_ENEMY_KILLS", 25) -- Trust No One
+            STAT_SET_INT("AWD_HOLD_UP_SHOPS", 20) -- Clown, Clown and Gun, Clown Dual Wield & Clown Dual Wield Dollar
+            STAT_SET_INT("AWD_FMBBETWIN", 50000) -- Hustler
+            STAT_SET_INT("AWD_100_HEADSHOTS", 500) -- Skull
+            STAT_SET_INT("AWD_FM_DM_WINS", 50) -- Burning Heart
+            STAT_SET_INT("AWD_RACES_WON", 50) -- Racing Brunette
+            STAT_SET_INT("AWD_FMREVENGEKILLSDM", 50) -- Dragon and Dagger
+            STAT_SET_INT("AWD_FM_DM_TOTALKILLS", 500) -- Melting Skull
+            STAT_SET_INT("LAP_DANCED_BOUGHT", 25) -- Hottie
+            STAT_SET_INT("AWD_FM_TDM_MVP", 50) -- Grim Reaper
+            STAT_SET_INT("AWD_FMKILLBOUNTY", 25) -- Skull and Sword
+            STAT_SET_INT("SNIPERRFL_ENEMY_KILLS", 100) -- Broken Skull
+            STAT_SET_BOOL("AWD_FMWINEVERYGAMEMODE", true) -- Angel
+            STAT_SET_BOOL("AWD_FMMOSTKILLSSURVIVE", true) -- The Wages of Sin
+            STAT_SET_BOOL("AWD_FMRACEWORLDRECHOLDER", true) -- Racing Blonde
+            STAT_SET_BOOL("AWD_FMATTGANGHQ", true) -- Grim Reaper Smoking Gun
+            STAT_SET_BOOL("AWD_FMKILL3ANDWINGTARACE", true) -- Ride or Die
+            STAT_SET_BOOL("AWD_FMKILLSTREAKSDM", true) -- Flaming Skull
+
+            -- https://www.unknowncheats.me/forum/3647348-post2928.html
+            STAT_SET_INT("KILLS_PLAYERS", 250) -- Blank Scroll
+            STAT_SET_INT("KILLS_PLAYERS", 500) -- Embellished Scroll
+            STAT_SET_INT("KILLS_PLAYERS", 1000) -- Seven Deadly Sins
+            STAT_SET_BOOL("AWD_FMFULLYMODDEDCAR", true) -- Los Santos Customs
+        end)
+
+        menu.action(UNLOCKER_TATTOO, ("Alien Tatto (Illuminati)"), {}, ("Change your session to apply!"), function() -- Thanks to jhowkNx for sharing these
+            SET_PACKED_STAT_BOOL_CODE(15737, true) -- Male
+            SET_PACKED_STAT_BOOL_CODE(15748, true) -- Female
+        end)
+
+    ---
+
+    local UNLOCKER_VEHICLE = menu.list(recovery, ("Vehicles"), {}, "", function(); end)
+
+        menu.action(UNLOCKER_VEHICLE, ("Unlock Some Trade Prices"), {}, "", function()
+            STAT_SET_INT("GANGOPS_FLOW_BITSET_MISS0", -1)
+            STAT_SET_INT("LFETIME_HANGAR_BUY_UNDETAK", 42)
+            STAT_SET_INT("LFETIME_HANGAR_BUY_COMPLET", 42)
+            STAT_SET_INT("AT_FLOW_IMPEXP_NUM", 32)
+            STAT_SET_INT("AT_FLOW_VEHICLE_BS", -1)
+            STAT_SET_INT("WVM_FLOW_VEHICLE_BS", -1)
+            STAT_SET_INT("H3_BOARD_DIALOGUE0", -1)
+            STAT_SET_INT("H3_BOARD_DIALOGUE1", -1)
+            STAT_SET_INT("H3_BOARD_DIALOGUE2", -1)
+            STAT_SET_INT("H3_VEHICLESUSED", -1)
+            STAT_SET_INT("WAM_FLOW_VEHICLE_BS", -1)
+            STAT_SET_BOOL("HELP_VETO", true)
+            STAT_SET_BOOL("HELP_VETO2", true)
+            STAT_SET_BOOL("HELP_ITALIRSX", true)
+            STAT_SET_BOOL("HELP_BRIOSO2", true)
+            STAT_SET_BOOL("HELP_MANCHEZ2", true)
+            STAT_SET_BOOL("HELP_SLAMTRUCK", true)
+            STAT_SET_BOOL("HELP_VETIR", true)
+            STAT_SET_BOOL("HELP_SQUADDIE", true)
+            STAT_SET_BOOL("HELP_DINGY5", true)
+            STAT_SET_BOOL("HELP_VERUS", true)
+            STAT_SET_BOOL("HELP_WEEVIL", true)
+            STAT_SET_BOOL("HELP_VEHUNTUNER", true)
+            STAT_SET_BOOL("FIXER_VEH_HELP", true)
+            STAT_SET_BOOL("HELP_DOMINATOR7", true)
+            STAT_SET_BOOL("HELP_JESTER4", true)
+            STAT_SET_BOOL("HELP_FUTO2", true)
+            STAT_SET_BOOL("HELP_DOMINATOR8", true)
+            STAT_SET_BOOL("HELP_PREVION", true)
+            STAT_SET_BOOL("HELP_GROWLER", true)
+            STAT_SET_BOOL("HELP_COMET6", true)
+            STAT_SET_BOOL("HELP_VECTRE", true)
+            STAT_SET_BOOL("HELP_SULTAN3", true)
+            STAT_SET_BOOL("HELP_CYPHER", true)
+        end)
+
+        menu.action(UNLOCKER_VEHICLE, ("Taxi Livery"), {}, ("a.k.a: 'Downtown Cab Co.' livery"), function() -- https://www.unknowncheats.me/forum/3630202-post2734.html
+            STAT_SET_INT("AWD_TAXIDRIVER", 100)
+        end)
+
+        menu.action(UNLOCKER_VEHICLE, ("Unlock The Shotaro"), {}, "", function()
+            STAT_SET_INT("CRDEADLINE", -1)
+        end)
+
+    ---
+
+    local SPECIAL_WEAPON = menu.list(recovery, ("Weapons"), {}, "", function(); end)
+
+        menu.action(SPECIAL_WEAPON, ("Service Carbine"), {}, (false), function()
+            SET_INT_GLOBAL(262145 + 32865, 1) -- UNLOCK_SERVICE_CARBINE_FOR_PURCHASE, https://www.unknowncheats.me/forum/3488328-post27.html
+        end)
+
+        menu.action(SPECIAL_WEAPON, ("Stone Hatchet Challenge"), {}, ("Change your session to apply!"), function()
+            STAT_SET_MASKED_INT("MP_NGDLCPSTAT_INT0", 5, 16)
+            STAT_SET_BOOL("MPPLY_MELEECHLENGECOMPLETED", true)
+        end)
+
+        menu.action(SPECIAL_WEAPON, ("Double Action Revolver"), {}, ("Change your session to apply!"), function()
+            STAT_SET_MASKED_INT("GANGOPSPSTAT_INT102", 3, 24)
+            STAT_SET_BOOL("MPPLY_HEADSHOTCHLENGECOMPLETED", true)
+        end)
+
+        menu.action(SPECIAL_WEAPON, ("Navy Revolver"), {}, "", function()
+            STAT_SET_BOOL("MPPLY_NAVYREVOLVERCOMPLETED", true)
+        end)
+
+        menu.action(SPECIAL_WEAPON, ("Ceramic Pistol"), {}, "", function() -- https://www.unknowncheats.me/forum/3439472-post2.html
+            STAT_SET_INT("CAS_HEIST_FLOW", 4096)
+        end)
+
+        menu.action(SPECIAL_WEAPON, ("Up-N-Atomizer"), {}, (false), function()
+            SET_INT_GLOBAL(103634, 90) -- freemode.c
+        end)
+
+    ---
+
+    menu.action(recovery, ("Vanilla Unicorn Award"), {}, "", function()
+        for i = 0, 25, 5 do
+            STAT_SET_INT("LAP_DANCED_BOUGHT", i)
+        end
+        STAT_SET_INT("PROSTITUTES_FREQUENTED", 1000)
+    end)
+
+    menu.action(recovery, ("Returning Player Bonus"), {}, (false), function()
+        SET_INT_GLOBAL(103635, 1) -- freemode.c
+        SET_INT_GLOBAL(152523, 2) -- freemode.c
+    end)
+
+---
+  menu.action(propertytp, "Press to load Property Teleports", {""}, "", function()
+    regenerateTpLocations('Property tp\'s')
+  end)
+  
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
-

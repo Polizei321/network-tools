@@ -82,7 +82,7 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu. Version 1.9 coded for GTA:O version 1.66")
+util.toast("Welcome to the Network Menu. Version 2.0 coded for GTA:O version 1.66")
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.yield(500)

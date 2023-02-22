@@ -36,6 +36,7 @@ local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
 local propertytp = menu.list(menu.my_root(), "Property Teleports")
 local recovery = menu.list(menu.my_root(), "Recovery")
+local debug = menu.list(menu.my_root(), "Debug")
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
     util.restart_script()
 end)
@@ -84,16 +85,18 @@ function SET_INT_LOCAL(script, script_local, value)
 end
 util.keep_running()
 util.toast("Welcome to the Network Menu. Version 2.0 coded for GTA:O version 1.66")
+util.log("Welcome to the Network Menu. Version 2.0 coded for GTA:O version 1.66")
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
+util.log("Scanning GTA:O Version...")
 util.yield(500)
 local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8")
 if addr == 0 then
 	util.toast("pattern scan failed")
 else
 	util.toast(memory.read_string(memory.rip(addr + 3)))
+    util.log(memory.read_string(memory.rip(addr + 3)))
 end
-util.log("Welcome to the Network Menu.")
 menu.toggle_loop(
     menu.my_root(),
     "Remote Ban",
@@ -198,7 +201,7 @@ menu.action(change, "[1.8] Added Instant Finish Doomsday Heist", {""}, "", funct
 end, true)
 menu.action(change, "[1.9] Added [Experiment] Auto-Setup Doomsday Heist", {""}, "", function()
 end, true)
-menu.action(change, "[2.0 Added Recovery, and Property TP", {""}, "[2.0] Added Recovery, and Property TP", function()
+menu.action(change, "[2.0] Added Recovery, and Property TP", {""}, "[2.0] Added Recovery, and Property TP", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -1177,7 +1180,108 @@ end
   menu.action(propertytp, "Press to load Property Teleports", {""}, "", function()
     regenerateTpLocations('Property tp\'s')
   end)
-  
+
+  -- ripped from next-translate, sorry lance D:
+
+  local log_dir = filesystem.stand_dir() .. '\\Log.txt'
+local full_stdout = ""
+local disp_stdout = ""
+local max_chars = 200
+local max_lines = 20
+local font_size = 0.30
+local timestamp_toggle = false
+
+local function get_stand_stdout(tbl, n)
+    local all_lines = {}
+    local disp_lines = {}
+    local size = #tbl
+    local index = 1
+    if size >= n then 
+        index = #tbl - n
+    end
+
+    for i=index, size do 
+        local line = tbl[i]
+        local line_copy = line
+        if line ~= "" and line ~= '\n' then
+            all_lines[#all_lines + 1] = line
+            if not timestamp_toggle then
+               -- at this point, the line is already added to all lines, so we can just customize it and it wont affect STDOUT clipboard copy
+                local _, second_segment = string.partition(line, ']')
+                if second_segment ~= nil then
+                    line = second_segment
+                end
+            end
+            if string.len(line) > max_chars then
+                disp_lines[#disp_lines + 1] = line:sub(1, max_chars) .. ' ...'
+            else
+                disp_lines[#disp_lines + 1] = line
+            end
+        end
+    end
+
+    -- full_stdout exists so that we can copy the entire console output without "aesthetic" changes or trimming
+    -- disp_stdout is the aesthetic, possibly-formatted version that you actually see in-game, WITH trimming
+    full_stdout = table.concat(all_lines, '\n')
+    disp_stdout = table.concat(disp_lines, '\n')
+end
+
+local function get_last_lines(file)
+    local f = io.open(file, "r")
+    local len = f:seek("end")
+    f:seek("set", len - max_lines*1000)
+    local text = f:read("*a")
+    lines = string.split(text, '\n')
+    f:close()
+    get_stand_stdout(lines, max_lines)
+end
+
+menu.action(debug, "Copy STDOUT to clipboard", {}, "Copy the full, untrimmed last x lines of the STDOUT to clipboard.", function()
+    util.copy_to_clipboard(full_stdout, true)
+end)
+
+
+menu.slider(debug, "Max display chars", {"nconsolemaxchars"}, "", 1, 1000, 200, 1, function(s)
+    max_chars = s
+end)
+
+menu.slider(debug, "Max display lines", {"nconsolemaxlines"}, "", 1, 60, 20, 1, function(s)
+    max_lines = s
+end)
+
+menu.slider_float(debug, "Font size", {"nconsolemaxlines"}, "", 1, 1000, 35, 1, function(s)
+    font_size = s*0.01
+end)
+
+menu.toggle(debug, "Show timestamps", {"ndrawconsole"}, "", function(on)
+    timestamp_toggle = on
+end, false)
+
+draw_toggle = true
+menu.toggle(debug, "Draw console", {"ndrawconsole"}, "", function(on)
+    draw_toggle = off
+end, true)
+
+local text_color = {r = 1, g = 1, b = 1, a = 1}
+menu.colour(debug, "Text color", {"nconsoletextcolor"}, "", 1, 1, 1, 1, true, function(on_change)
+    text_color = on_change
+end)
+
+local bg_color = {r = 0, g = 0, b = 0, a = 0.5}
+menu.colour(debug, "BG color", {"nconsolebgcolor"}, "", 0, 0, 0, 0.5, true, function(on_change)
+    bg_color = on_change
+end)
+
+util.create_tick_handler(function()
+    local text = get_last_lines(log_dir)
+    if draw_toggle then
+        local size_x, size_y = directx.get_text_size(disp_stdout, font_size)
+        size_x += 0.01
+        size_y += 0.01
+        directx.draw_rect(0.0, 0.25, size_x, size_y, bg_color)
+        directx.draw_text(0.0, 0.25, disp_stdout, 0, font_size, text_color, true)
+    end
+end)
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 

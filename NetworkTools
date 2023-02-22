@@ -1259,7 +1259,7 @@ end, false)
 
 draw_toggle = true
 menu.toggle(debug, "Draw console", {"ndrawconsole"}, "", function(on)
-    draw_toggle = off
+    draw_toggle = on
 end, true)
 
 local text_color = {r = 1, g = 1, b = 1, a = 1}

@@ -273,6 +273,8 @@ menu.action(change, "[2.0] Added Recovery, and Property TP", {""}, "[2.0] Added 
 end, true)
 menu.action(change, "[2.1] Re-wrote Panic Button, Bugfixes", {""}, "", function()
 end, true)
+menu.action(change, "[2.2] Added Modder Detections, Removed Experiments > Check for updates.", {""}, "", function()
+end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
     util.yield(100)
@@ -291,13 +293,6 @@ menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", 
             menu.trigger_commands("luanetworkmenu")
             util.toast("Plugin Loaded.")
             end, true)
-menu.action(experiments, "[B] Check for Update", {}, "This button is broken as of now, please give me time to figure out how to fix this.", function()
-    util.toast("[WARN] This does NOT work. But I will attempt it anyways for you :)")
-    util.yield(1000)
-    auto_update_config.check_interval = 0
-    util.toast("Checking for updates")
-    auto_updater.run_auto_update(auto_update_config)
-end)
 menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell price for 5M+ (Use once, if you wish to unapply this just swap lobbies).", function()
     SET_INT_GLOBAL(262145, 20000000)
     SET_INT_GLOBAL(278133,5780000)
@@ -1381,6 +1376,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

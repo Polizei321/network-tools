@@ -38,6 +38,7 @@ local propertytp = menu.list(menu.my_root(), "Property Teleports")
 local recovery = menu.list(menu.my_root(), "Recovery")
 local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
+local goodpeople = menu.list(menu.my_root(), "Great People")
 local interior_stuff = {0, 233985, 169473, 169729, 169985, 170241, 177665, 177409, 185089, 184833, 184577, 163585, 167425, 167169}
 local modded_vehicles = {
     "dune2",
@@ -1258,6 +1259,8 @@ end
     end 
 end)
 
+-- credits to prizuhm
+
 menu.toggle_loop(detections, "Vehicle Godmode", {}, "Detects if someone is using a vehicle that is in godmode.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -1372,10 +1375,23 @@ menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleport
     end
 end)
 
+menu.action(goodpeople, "shesaidwhattttt", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
+end, true)
+menu.action(goodpeople, "honda_drifts", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
+end, true)
+menu.action(goodpeople, "YaKnowIt_SC", {}, "Tester / Helper - Tested V 2.0 / Helped with programming", function()
+end, true)
+menu.action(goodpeople, "Lance", {}, "Borrowed some code, sorry lance", function()
+end, true)
+menu.action(goodpeople, "Prizuhm aka Jinx", {}, "Borrowed some code, sorry prisuhm", function()
+end, true)
+menu.action(goodpeople, "-iAbuseEwo-", {}, "Pestering the fuck out of me to the point of adding money options", function()
+end, true)
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

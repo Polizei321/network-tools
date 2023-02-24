@@ -117,8 +117,8 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
-util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.5 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.5 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -279,6 +279,8 @@ end, true)
 menu.action(change, "[2.3] Removed Property TP", {""}, "", function()
 end, true)
 menu.action(change, "[2.4] Added Autokicks", {""}, "", function()
+end, true)
+menu.action(change, "[2.5] Added Money Loop", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -1251,6 +1253,9 @@ end
 
 ---
 
+menu.action(fmoney, ("Money Loop"), {"infinitemoney"}, ("Will loop give money until the end of time"), function()
+    menu.trigger_commands("yeet")
+
 -- credits to prizuhm
 
   menu.toggle_loop(detections, "Godmode", {}, "Detects if someone is using godmode.", function()
@@ -1412,6 +1417,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

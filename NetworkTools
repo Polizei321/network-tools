@@ -1255,7 +1255,7 @@ end
 
 menu.action(fmoney, ("Money Loop"), {"infinitemoney"}, ("Will loop give money until the end of time"), function()
     menu.trigger_commands("yeet")
-
+end, true)
 -- credits to prizuhm
 
   menu.toggle_loop(detections, "Godmode", {}, "Detects if someone is using godmode.", function()

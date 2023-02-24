@@ -1390,7 +1390,7 @@ menu.toggle_loop(autokick, "Autokick Hong Kong", {}, "Notifies you and kicks som
 end)
 menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks someone from russia is detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
-        if not players.get_language(pid) == 7 then
+        if players.get_language(pid) == 7 then
             util.toast(players.get_name(pid).. "Russian Detected")
             menu.trigger_commands("kick" .. players.get_name(pid))
         end
@@ -1412,6 +1412,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

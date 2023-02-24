@@ -34,10 +34,10 @@ local experiments = menu.list(menu.my_root(), "Experiments")
 local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
-local propertytp = menu.list(menu.my_root(), "Property Teleports")
 local recovery = menu.list(menu.my_root(), "Recovery")
 local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
+local autokick = menu.list(menu.my_root(), "Auto Kicks")
 local goodpeople = menu.list(menu.my_root(), "Great People")
 local interior_stuff = {0, 233985, 169473, 169729, 169985, 170241, 177665, 177409, 185089, 184833, 184577, 163585, 167425, 167169}
 local modded_vehicles = {
@@ -117,8 +117,8 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu. Version 2.2 coded for GTA:O version 1.66")
-util.log("Welcome to the Network Menu. Version 2.2 coded for GTA:O version 1.66")
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -270,11 +270,15 @@ menu.action(change, "[1.8] Added Instant Finish Doomsday Heist", {""}, "", funct
 end, true)
 menu.action(change, "[1.9] Added [Experiment] Auto-Setup Doomsday Heist", {""}, "", function()
 end, true)
-menu.action(change, "[2.0] Added Recovery, and Property TP", {""}, "[2.0] Added Recovery, and Property TP", function()
+menu.action(change, "[2.0] Added Recovery, and Property TP", {""}, "", function()
 end, true)
 menu.action(change, "[2.1] Re-wrote Panic Button, Bugfixes", {""}, "", function()
 end, true)
 menu.action(change, "[2.2] Added Modder Detections, Removed Experiments > Check for updates.", {""}, "", function()
+end, true)
+menu.action(change, "[2.3] Removed Property TP", {""}, "", function()
+end, true)
+menu.action(change, "[2.4] Added Autokicks", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -348,13 +352,88 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
         SET_INT_LOCAL("fm_mission_controller", 28329 + 1, 99999)
         SET_INT_LOCAL("fm_mission_controller", 31585 + 69, 99999)
     end)
-    menu.action(experiments, "[?] Act II Auto-Setup", {"setupdoom"}, "Will setup the Doomsday Heist.", function()
+    menu.action(heist, "Act II Auto-Setup", {"setupdoom"}, "Will setup the Doomsday Heist.", function()
         menu.trigger_commands("scripthost")
         util.yield_once()
     
         STAT_SET_INT("GANGOPS_FLOW_MISSION_PROG", 240)
         STAT_SET_INT("GANGOPS_HEIST_STATUS", -229378)
         STAT_SET_INT("GANGOPS_FLOW_NOTIFICATIONS", 1557)
+    end)
+    QUICK_PRESET = menu.toggle(menu.my_root(), ("Quick Preset (1 - 4P)"), {"hccpquick"}, (false), function()
+        if menu.get_value(QUICK_PRESET) then
+            menu.trigger_commands("hccprefreshboard")
+            util.toast(("There are no secondary targets, there's only the primary target. Your goal is get it.") .. "\n\n" .. ("Leave activated until the end of the heist"))
+        else
+            menu.apply_default_state(CP_REM_FEE)
+            menu.apply_default_state(CP_HOST_CUT)
+            menu.apply_default_state(CP_HOST_CUT_LOOP)
+            menu.apply_default_state(CP_2P_CUT)
+            menu.apply_default_state(CP_2P_CUT_LOOP)
+            menu.apply_default_state(CP_3P_CUT)
+            menu.apply_default_state(CP_3P_CUT_LOOP)
+            menu.apply_default_state(CP_4P_CUT)
+            menu.apply_default_state(CP_4P_CUT_LOOP)
+        end
+    
+        while menu.get_value(QUICK_PRESET) do
+            STAT_SET_INT("H4CNF_BS_GEN", 262143)
+            STAT_SET_INT("H4CNF_BS_ENTR", 63)
+            STAT_SET_INT("H4CNF_BS_ABIL", 63)
+            STAT_SET_INT("H4CNF_WEP_DISRP", 3)
+            STAT_SET_INT("H4CNF_ARM_DISRP", 3)
+            STAT_SET_INT("H4CNF_HEL_DISRP", 3)
+            STAT_SET_INT("H4CNF_BOLTCUT", 4424)
+            STAT_SET_INT("H4CNF_UNIFORM", 5256)
+            STAT_SET_INT("H4CNF_GRAPPEL", 5156)
+            STAT_SET_INT("H4CNF_APPROACH", -1)
+            STAT_SET_INT("H4LOOT_CASH_I", 0)
+            STAT_SET_INT("H4LOOT_CASH_C", 0)
+            STAT_SET_INT("H4LOOT_WEED_I", 0)
+            STAT_SET_INT("H4LOOT_WEED_C", 0)
+            STAT_SET_INT("H4LOOT_COKE_I", 0)
+            STAT_SET_INT("H4LOOT_COKE_C", 0)
+            STAT_SET_INT("H4LOOT_GOLD_I", 0)
+            STAT_SET_INT("H4LOOT_GOLD_C", 0)
+            STAT_SET_INT("H4LOOT_PAINT", 0)
+            STAT_SET_INT("H4LOOT_CASH_V", 0)
+            STAT_SET_INT("H4LOOT_COKE_V", 0)
+            STAT_SET_INT("H4LOOT_GOLD_V", 0)
+            STAT_SET_INT("H4LOOT_PAINT_V", 0)
+            STAT_SET_INT("H4LOOT_WEED_V", 0)
+            STAT_SET_INT("H4LOOT_CASH_I_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_CASH_C_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_WEED_I_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_WEED_C_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_COKE_I_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_COKE_C_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_GOLD_I_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_GOLD_C_SCOPED", 0)
+            STAT_SET_INT("H4LOOT_PAINT_SCOPED", 0)
+            STAT_SET_INT("H4CNF_TARGET", 5)
+            STAT_SET_INT("H4CNF_WEAPONS", 1)
+            STAT_SET_INT("H4_MISSIONS", 65283)
+            STAT_SET_INT("H4_PROGRESS", 126823)
+            STAT_SET_INT("H4_PLAYTHROUGH_STATUS", 5)
+    
+            if IsForCayoBot then
+                SET_INT_GLOBAL(262145 + 29987, 2090000) -- IH_PRIMARY_TARGET_VALUE_SAPPHIRE_PANTHER_STATUE
+            else
+                SET_INT_GLOBAL(262145 + 29987, 2455000)
+            end
+            
+            menu.set_value(CP_REM_FEE, true)
+            menu.set_value(CP_HOST_CUT, 100)
+            menu.set_value(CP_HOST_CUT_LOOP, true)
+            menu.set_value(CP_2P_CUT, 145)
+            menu.set_value(CP_2P_CUT_LOOP, true)
+            menu.set_value(CP_3P_CUT, 145)
+            menu.set_value(CP_3P_CUT_LOOP, true)
+            menu.set_value(CP_4P_CUT, 145)
+            menu.set_value(CP_4P_CUT_LOOP, true)
+    
+            util.yield_once()
+        end
     end)
     menu.action(meanings, "! = Risk", {""}, "", function()
     end, true)
@@ -367,78 +446,6 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
     menu.action(meanings, "Plugin = Addon options for the script.", {""}, "", function()
     end, true)
 
-    -- property tp from JerryScript --
-local propertyBlips = {
-    [1] = { name = ('Ceo office'),   sprite = 475 },
-    [2] = { name = ('MC clubhouse'), sprite = 492,
-        subProperties = {listName = ('MC businesses'), properties = {
-            [1] = { name = ('Weed farm'),           sprite = 496 },
-            [2] = { name = ('Cocaine lockup'),      sprite = 497 },
-            [3] = { name = ('Document forgery'),    sprite = 498 },
-            [4] = { name = ('Methamphetamine Lab'), sprite = 499 },
-            [5] = { name = ('Counterfeit cash'),    sprite = 500 },
-        }}
-    },
-    [3] = { name = ('Bunker'),     sprite = 557 },
-    [4] = { name = ('Hangar'),     sprite = 569 },
-    [5] = { name = ('Facility'),   sprite = 590 },
-    [6] = { name = ('Night club'), sprite = 614 },
-    [7] = { name = ('Arcade'),     sprite = 740 },
-    [8] = { name = ('Auto shop'),  sprite = 779 },
-    [9] = { name = ('Agency'),     sprite = 826 },
-  }
-  
-  local function getUserPropertyBlip(sprite)
-    local blip = HUD.GET_FIRST_BLIP_INFO_ID(sprite)
-    while blip ~= 0 do
-        local blipColour = HUD.GET_BLIP_COLOUR(blip)
-        if HUD.DOES_BLIP_EXIST(blip) and blipColour != 55 and blipColour != 3 then return blip end
-        blip = HUD.GET_NEXT_BLIP_INFO_ID(sprite)
-    end
-  end
-  
-  local function tpToBlip(blip)
-    local pos = HUD.GET_BLIP_COORDS(blip)
-    local tpEntity = (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and my_cur_car or players.user_ped())
-    ENTITY.SET_ENTITY_COORDS(tpEntity, pos, false, false, false, false)
-  end
-  
-  local propertyTpRefs = {}
-  local function regenerateTpLocations(root)
-    for k, _ in pairs(propertyTpRefs) do
-        menu.delete(propertyTpRefs[k])
-        propertyTpRefs[k] = nil
-    end
-    for i = 1, #propertyBlips do
-        local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
-        if propertyBlip == nil then continue end
-  
-        propertyTpRefs[propertyBlips[i].name] = menu.action(propertytp, propertyBlips[i].name, {}, '', function()
-            if not HUD.DOES_BLIP_EXIST(propertyBlip) then
-                util.toast('Couldn\'t find property.')
-                return
-            end
-            tpToBlip(propertyBlip)
-        end)
-        if propertyBlips[i].subProperties then
-            local subProperties = propertyBlips[i].subProperties
-            local listName = subProperties.listName
-            propertyTpRefs[listName] = menu.list(propertytp, listName, {}, '')
-            for j = 1, #subProperties.properties do
-                local subPropertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
-                if propertyBlip == nil then continue end
-  
-                menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
-                    if not HUD.DOES_BLIP_EXIST(propertyBlip) then
-                        util.toast('Couldn\'t find property.')
-                        return
-                    end
-                    tpToBlip(subPropertyBlip)
-                end)
-            end
-        end
-    end
-  end
   function IS_MPPLY_STAT(stat)
     local MpplyStats = {
         "MP_PLAYING_TIME",
@@ -1243,9 +1250,9 @@ end
     end)
 
 ---
-  menu.action(propertytp, "Press to load Property Teleports", {""}, "", function()
-    regenerateTpLocations('Property tp\'s')
-  end)
+
+-- credits to prizuhm
+
   menu.toggle_loop(detections, "Godmode", {}, "Detects if someone is using godmode.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -1258,8 +1265,6 @@ end
         end
     end 
 end)
-
--- credits to prizuhm
 
 menu.toggle_loop(detections, "Vehicle Godmode", {}, "Detects if someone is using a vehicle that is in godmode.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
@@ -1375,6 +1380,22 @@ menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleport
     end
 end)
 
+menu.toggle_loop(autokick, "Autokick Hong Kong", {}, "Notifies you and kicks someone from hong kong is detected in the lobby", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if players.get_language(pid) == 12 then
+            util.toast(players.get_name(pid).. " Hong Kong Detected")
+            menu.trigger_commands("kick" .. players.get_name(pid))
+        end
+    end
+end)
+menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks someone from russia is detected in the lobby", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if not players.get_language(pid) == 7 then
+            util.toast(players.get_name(pid).. "Russian Detected")
+            menu.trigger_commands("kick" .. players.get_name(pid))
+        end
+    end
+end)
 menu.action(goodpeople, "shesaidwhattttt", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
 end, true)
 menu.action(goodpeople, "honda_drifts", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
@@ -1391,6 +1412,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

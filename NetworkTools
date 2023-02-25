@@ -39,6 +39,9 @@ local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 local autokick = menu.list(menu.my_root(), "Auto Kicks")
 local goodpeople = menu.list(menu.my_root(), "Great People")
+local stats = {
+    method = util.joaat("mp" .. util.get_char_slot() .. "_prop_nightclub_value"),
+}
 local interior_stuff = {0, 233985, 169473, 169729, 169985, 170241, 177665, 177409, 185089, 184833, 184577, 163585, 167425, 167169}
 local modded_vehicles = {
     "dune2",
@@ -117,8 +120,8 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.5 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
-util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.5 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -136,7 +139,7 @@ menu.toggle_loop(
     {"remoteban"},
     "Will send continuous remote kicks, this causes a soft ban for your target leaving them unable to stay in a public lobby.",
     function(a)
-        menu.trigger_command(menu.ref_by_path("Online>Player History>TARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>SomeFoo69 [Public]>Blind-Fire Kick>Breakup"))
         util.yield(500)
     end,
     true
@@ -281,6 +284,8 @@ end, true)
 menu.action(change, "[2.4] Added Autokicks", {""}, "", function()
 end, true)
 menu.action(change, "[2.5] Added Money Loop", {""}, "", function()
+end, true)
+menu.action(change, "[2.6] Added $1B Nightclub Sale", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -1252,10 +1257,20 @@ end
     end)
 
 ---
-
-menu.action(fmoney, ("Money Loop"), {"infinitemoney"}, ("Will loop give money until the end of time"), function()
-    menu.trigger_commands("yeet")
-end, true)
+menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
+    function STAT_SET_INT(stat, value)
+                STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+            end
+            STATS.STAT_SET_INT(stats.method, ((1000000000 * 2) + 4500000), true)
+            util.toast("Price Set! Go to [Maze Bank forceclosures] and trade in your current nightclub for a different one.")
+        end, true)
+        menu.action(fmoney, "Fix Values", {""}, "", function()
+            function STAT_SET_INT(stat, value)
+                        STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+                    end
+                    STATS.STAT_SET_INT(stats.method, ((0 * 2) + 0), true)
+                    util.toast("Values reset.")
+                end, true)
 -- credits to prizuhm
 
   menu.toggle_loop(detections, "Godmode", {}, "Detects if someone is using godmode.", function()
@@ -1417,6 +1432,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

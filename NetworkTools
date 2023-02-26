@@ -1412,7 +1412,7 @@ menu.toggle_loop(autokick, "Autokick Russians", {"akr"}, "Notifies you and kicks
 end)
 menu.toggle_loop(autokick, "Autokick Modders", {"akm"}, "Notifies you and kicks modders when they are detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
-        if players.is_marked_as_modder(pid) and not NETWORK.NETWORK_IS_FRIEND then 
+        if players.is_marked_as_modder(pid) then 
     util.toast(players.get_name(pid).. " is detected as a modder.")
     util.log(players.get_name(pid).. " is detected as a modder.")
     menu.trigger_commands("kick" .. players.get_name(pid))

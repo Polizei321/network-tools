@@ -1394,7 +1394,7 @@ menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleport
     end
 end)
 
-menu.toggle_loop(autokick, "Autokick Hong Kong", {}, "Notifies you and kicks someone from hong kong is detected in the lobby", function()
+menu.toggle_loop(autokick, "Autokick Hong Kong", {"akhk"}, "Notifies you and kicks someone from hong kong is detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
         if players.get_language(pid) == 12 then
             util.toast(players.get_name(pid).. " Hong Kong Detected")
@@ -1402,7 +1402,7 @@ menu.toggle_loop(autokick, "Autokick Hong Kong", {}, "Notifies you and kicks som
         end
     end
 end)
-menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks someone from russia is detected in the lobby", function()
+menu.toggle_loop(autokick, "Autokick Russians", {"akr"}, "Notifies you and kicks someone from russia is detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
         if players.get_language(pid) == 7 then
             util.toast(players.get_name(pid).. "Russian Detected")
@@ -1410,7 +1410,7 @@ menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks some
         end
     end
 end)
-menu.toggle_loop(autokick, "Autokick Modders", {""}, "Notifies you and kicks modders when they are detected in the lobby", function()
+menu.toggle_loop(autokick, "Autokick Modders", {"akm"}, "Notifies you and kicks modders when they are detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
         if players.is_marked_as_modder(pid) and not NETWORK.NETWORK_IS_FRIEND then 
     util.toast(players.get_name(pid).. " is detected as a modder.")
@@ -1421,7 +1421,7 @@ menu.toggle_loop(autokick, "Autokick Modders", {""}, "Notifies you and kicks mod
     end
 end)
 menu.divider(autokick, "Danger Zone")
-menu.toggle_loop(autokick, "[DNGR] Strict Autokick Modders", {""}, "Notifies you and kicks any modders when they are detected in the lobby. Has a higher detection pool", function()
+menu.toggle_loop(autokick, "[DNGR] Strict Autokick Modders", {"akms"}, "Notifies you and kicks any modders when they are detected in the lobby. Has a higher detection pool", function()
     for _, pid in ipairs(players.list(true, true, true)) do
         if players.is_marked_as_modder(pid) and players.is_godmode(pid) and not players.is_in_interior(pid) and not NETWORK.NETWORK_IS_FRIEND then 
     util.toast(players.get_name(pid).. " is detected as a modder.")
@@ -1488,6 +1488,10 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+util.yield(1000)
+menu.trigger_commands("akm")
+
+
 
 
 

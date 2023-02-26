@@ -125,8 +125,8 @@ end
 util.keep_running()
 directx.draw_text(0.5, 0.5, "Loading...", ALIGN_CENTRE, 1, {r = 1, g = 1, b = 1, a = 1})
         util.yield()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
-util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Autokick Modders.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Autokick Modders") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -294,7 +294,9 @@ menu.action(change, "[2.6] Added $1B Nightclub Sale", {""}, "", function()
 end, true)
 menu.action(change, "[2.7] Added Toxic > Bounty Loop", {""}, "", function()
 end, true)
-menu.action(change, "[2.7] Added Autokick Modders", {""}, "", function()
+menu.action(change, "[2.8] Added Autokick Modders", {""}, "", function()
+end, true)
+menu.action(change, "[2.8.1] Bugfixes & Improvements", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -376,20 +378,12 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
         STAT_SET_INT("GANGOPS_HEIST_STATUS", -229378)
         STAT_SET_INT("GANGOPS_FLOW_NOTIFICATIONS", 1557)
     end)
-    QUICK_PRESET = menu.toggle(menu.my_root(), ("Quick Preset (1 - 4P)"), {"hccpquick"}, (false), function()
+    QUICK_PRESET = menu.toggle(heist, ("Cayo Auto-Setup"), {"hccpquick"}, (false), function()
         if menu.get_value(QUICK_PRESET) then
             menu.trigger_commands("hccprefreshboard")
-            util.toast(("There are no secondary targets, there's only the primary target. Your goal is get it.") .. "\n\n" .. ("Leave activated until the end of the heist"))
+            util.toast(("Cayo is setup. The cuts are normal. I am working on figuring out how to set the %.") .. "\n\n" .. ("Leave activated until the end of the heist"))
         else
-            menu.apply_default_state(CP_REM_FEE)
-            menu.apply_default_state(CP_HOST_CUT)
-            menu.apply_default_state(CP_HOST_CUT_LOOP)
-            menu.apply_default_state(CP_2P_CUT)
-            menu.apply_default_state(CP_2P_CUT_LOOP)
-            menu.apply_default_state(CP_3P_CUT)
-            menu.apply_default_state(CP_3P_CUT_LOOP)
-            menu.apply_default_state(CP_4P_CUT)
-            menu.apply_default_state(CP_4P_CUT_LOOP)
+util.toast("Off")
         end
     
         while menu.get_value(QUICK_PRESET) do
@@ -437,17 +431,6 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
             else
                 SET_INT_GLOBAL(262145 + 29987, 2455000)
             end
-            
-            menu.set_value(CP_REM_FEE, true)
-            menu.set_value(CP_HOST_CUT, 100)
-            menu.set_value(CP_HOST_CUT_LOOP, true)
-            menu.set_value(CP_2P_CUT, 145)
-            menu.set_value(CP_2P_CUT_LOOP, true)
-            menu.set_value(CP_3P_CUT, 145)
-            menu.set_value(CP_3P_CUT_LOOP, true)
-            menu.set_value(CP_4P_CUT, 145)
-            menu.set_value(CP_4P_CUT_LOOP, true)
-    
             util.yield_once()
         end
     end)
@@ -1505,6 +1488,8 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
+
 
 
 

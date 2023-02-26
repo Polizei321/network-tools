@@ -1489,7 +1489,6 @@ local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
 util.yield(1000)
-menu.trigger_commands("akm")
 
 
 

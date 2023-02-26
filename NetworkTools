@@ -28,6 +28,7 @@ auto_updater.run_auto_update({
 })
 local start_time = util.current_time_millis()
 
+local utilroom = menu.list(menu.my_root(), "Utility Room")
 local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")
 local experiments = menu.list(menu.my_root(), "Experiments")
@@ -36,6 +37,7 @@ local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
 local recovery = menu.list(menu.my_root(), "Recovery")
+local botnet = menu.list(menu.my_root(), "Remote kick people who I dont like")
 local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 local autokick = menu.list(menu.my_root(), "Auto Kicks")
@@ -121,10 +123,10 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
-directx.draw_text(0.5, 0.5, "AAAAAAAAAAAAAA", ALIGN_CENTRE, 1, {r = 1, g = 1, b = 1, a = 1})
+directx.draw_text(0.5, 0.5, "Loading...", ALIGN_CENTRE, 1, {r = 1, g = 1, b = 1, a = 1})
         util.yield()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.7.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
-util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.7.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.8 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -142,7 +144,7 @@ menu.toggle_loop(
     {"remoteban"},
     "Will send continuous remote kicks, this causes a soft ban for your target leaving them unable to stay in a public lobby.",
     function(a)
-        menu.trigger_command(menu.ref_by_path("Online>Player History>SomeFoo69 [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>xtoxicxpeachesx [Public]>Blind-Fire Kick>Breakup"))
         util.yield(500)
     end,
     true
@@ -153,7 +155,7 @@ menu.action(
     {"remotebantest"},
     "Will send a single remote kick.",
     function()
-        menu.trigger_command(menu.ref_by_path("Online>Player History>TARGET_NAME_HERE [Public]>Blind-Fire Kick>Breakup"))
+        menu.trigger_command(menu.ref_by_path("Online>Player History>xtoxicxpeachesx [Public]>Blind-Fire Kick>Breakup"))
         util.log("[NETWORK TOOLS] Sending a manual remote kick.")
         util.toast("[NETWORK TOOLS] Sending a manual remote kick.")
     end,
@@ -291,6 +293,8 @@ end, true)
 menu.action(change, "[2.6] Added $1B Nightclub Sale", {""}, "", function()
 end, true)
 menu.action(change, "[2.7] Added Toxic > Bounty Loop", {""}, "", function()
+end, true)
+menu.action(change, "[2.7] Added Autokick Modders", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -456,6 +460,8 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
     menu.action(meanings, "WARN = Warning message.", {""}, "", function()
     end, true)
     menu.action(meanings, "Plugin = Addon options for the script.", {""}, "", function()
+    end, true)
+    menu.action(meanings, "DNGR = Could cause problems with the game.", {""}, "", function()
     end, true)
 
   function IS_MPPLY_STAT(stat)
@@ -1266,7 +1272,7 @@ menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
     function STAT_SET_INT(stat, value)
                 STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
             end
-            STATS.STAT_SET_INT(stats.method, ((1000000000 * 2) + 4500000), true)
+            STATS.STAT_SET_INT(stats.method, ((100000000 * 2) + 4500000), true)
             util.toast("Price Set! Go to [Maze Bank forceclosures] and trade in your current nightclub for a different one.")
         end, true)
         menu.action(fmoney, "Fix Values", {""}, "", function()
@@ -1421,15 +1427,73 @@ menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks some
         end
     end
 end)
+menu.toggle_loop(autokick, "Autokick Modders", {""}, "Notifies you and kicks modders when they are detected in the lobby", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if players.is_marked_as_modder(pid) and not NETWORK.NETWORK_IS_FRIEND then 
+    util.toast(players.get_name(pid).. " is detected as a modder.")
+    util.log(players.get_name(pid).. " is detected as a modder.")
+    menu.trigger_commands("kick" .. players.get_name(pid))
+    util.yield(100)
+        end
+    end
+end)
+menu.divider(autokick, "Danger Zone")
+menu.toggle_loop(autokick, "[DNGR] Strict Autokick Modders", {""}, "Notifies you and kicks any modders when they are detected in the lobby. Has a higher detection pool", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if players.is_marked_as_modder(pid) and players.is_godmode(pid) and not players.is_in_interior(pid) and not NETWORK.NETWORK_IS_FRIEND then 
+    util.toast(players.get_name(pid).. " is detected as a modder.")
+    util.log(players.get_name(pid).. " is detected as a modder.")
+    menu.trigger_commands("kick" .. players.get_name(pid))
+    util.yield(100)
+        end
+    end
+end)
 menu.toggle_loop(toxic, ("Bounty Loop"), {"bountylobby"}, ("Fuck yeah!"), function()
     util.toast("Heartbeat")
     menu.trigger_commands("bounty all")
     util.yield(15000)
     menu.trigger_commands("kill all")
     end, true)
+    menu.action(botnet, "Press this", {}, "", function()
+        menu.trigger_commands("historyaddrid 222969847")
+        menu.trigger_commands("historyaddrid 219061289")
+        menu.trigger_commands("historyaddrid 224463849")
+        menu.trigger_commands("historyaddrid 99453882")
+        menu.trigger_commands("historyaddrid 215706524")
+        menu.trigger_commands("historyaddrid 222969847")
+        menu.trigger_commands("historyaddrid 222969847")
+    end, true)
+    menu.divider(botnet, "Toggles")
+    menu.toggle_loop(botnet, "Bubbles", {}, "Relay", function()
+        menu.trigger_command(menu.ref_by_path("Online>Player History>Bubbles42000 [Public]>Blind-Fire Kick>Breakup"))
+        util.toast("Heartbeat")
+        util.yield(300000)
+        end)
+        menu.toggle_loop(botnet, "Qf", {}, "Relay", function(on)
+            menu.trigger_command(menu.ref_by_path("Online>Player History>Qf830869 [Public]>Blind-Fire Kick>Breakup"))
+            util.toast("Heartbeat")
+            util.yield(300000)
+            end)
+            menu.toggle_loop(botnet, "-iAbuseEwo-", {}, "Relay", function(on)
+                menu.trigger_command(menu.ref_by_path("Online>Player History>-iAbuseEwo- [Public]>Blind-Fire Kick>Breakup"))
+                util.toast("Heartbeat")
+                util.yield(300000)
+                end)
+                menu.toggle_loop(botnet, "SweetPlumbus", {}, "Relay", function(on)
+                    menu.trigger_command(menu.ref_by_path("Online>Player History>SweetPlumbus [Public]>Blind-Fire Kick>Breakup"))
+                    util.toast("Heartbeat")
+                    util.yield(300000)
+                    end)
+                    menu.toggle_loop(botnet, "demongxx666", {}, "Relay", function(on)
+                        menu.trigger_command(menu.ref_by_path("Online>Player History>demongxx666 [Public]>Blind-Fire Kick>Breakup"))
+                        util.toast("Heartbeat")
+                        util.yield(300000)
+                        end)
 menu.action(goodpeople, "shesaidwhattttt", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
 end, true)
 menu.action(goodpeople, "honda_drifts", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
+end, true)
+menu.action(goodpeople, "winkna", {}, "For donating", function()
 end, true)
 menu.action(goodpeople, "YaKnowIt_SC", {}, "Tester / Helper - Tested V 2.0 / Helped with programming", function()
 end, true)
@@ -1437,12 +1501,12 @@ menu.action(goodpeople, "Lance", {}, "Borrowed some code, sorry lance", function
 end, true)
 menu.action(goodpeople, "Prizuhm aka Jinx", {}, "Borrowed some code, sorry prisuhm", function()
 end, true)
-menu.action(goodpeople, "-iAbuseEwo-", {}, "Pestering the fuck out of me to the point of adding money options", function()
-end, true)
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
+
 
 
 

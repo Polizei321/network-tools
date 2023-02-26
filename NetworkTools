@@ -31,6 +31,7 @@ local start_time = util.current_time_millis()
 local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")
 local experiments = menu.list(menu.my_root(), "Experiments")
+local toxic = menu.list(menu.my_root(), "Toxic")
 local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
@@ -120,6 +121,8 @@ function SET_INT_LOCAL(script, script_local, value)
     end
 end
 util.keep_running()
+directx.draw_text(0.5, 0.5, "AAAAAAAAAAAAAA", ALIGN_CENTRE, 1, {r = 1, g = 1, b = 1, a = 1})
+        util.yield()
 util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
@@ -1416,6 +1419,12 @@ menu.toggle_loop(autokick, "Autokick Russians", {}, "Notifies you and kicks some
         end
     end
 end)
+menu.toggle_loop(toxic, ("Bounty Loop"), {"bountylobby"}, ("Fuck yeah!"), function()
+    util.toast("Heartbeat")
+    menu.trigger_commands("bounty all")
+    util.yield(5000)
+    menu.trigger_commands("kill all")
+    end, true)
 menu.action(goodpeople, "shesaidwhattttt", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
 end, true)
 menu.action(goodpeople, "honda_drifts", {}, "Alpha Tester - Since V 0.1 up to V 2.0", function()
@@ -1432,6 +1441,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

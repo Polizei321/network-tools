@@ -123,8 +123,8 @@ end
 util.keep_running()
 directx.draw_text(0.5, 0.5, "AAAAAAAAAAAAAA", ALIGN_CENTRE, 1, {r = 1, g = 1, b = 1, a = 1})
         util.yield()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
-util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.6 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.7 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
+util.log("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.7 coded for GTA:O version 1.66\n" .. "Newsest Feature: Modder Detections.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -289,6 +289,8 @@ end, true)
 menu.action(change, "[2.5] Added Money Loop", {""}, "", function()
 end, true)
 menu.action(change, "[2.6] Added $1B Nightclub Sale", {""}, "", function()
+end, true)
+menu.action(change, "[2.7] Added Toxic > Bounty Loop", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -1441,6 +1443,7 @@ local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 
 util.toast("Script loaded in " .. load_time .. "ms", TOAST_ALL)
+
 
 
 

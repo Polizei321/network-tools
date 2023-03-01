@@ -1294,7 +1294,7 @@ menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
                 end, true)
 -- credits to prizuhm
 
-  menu.toggle_loop(detections, "Godmode", {}, "Detects if someone is using godmode.", function()
+  menu.toggle_loop(detections, "Godmode", {"detectgod"}, "Detects if someone is using godmode.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
@@ -1307,7 +1307,7 @@ menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
     end 
 end)
 
-menu.toggle_loop(detections, "Vehicle Godmode", {}, "Detects if someone is using a vehicle that is in godmode.", function()
+menu.toggle_loop(detections, "Vehicle Godmode", {"detectvehgod"}, "Detects if someone is using a vehicle that is in godmode.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local pos = ENTITY.GET_ENTITY_COORDS(ped, false)
@@ -1327,7 +1327,7 @@ menu.action(detections, "Unreleased Vehicle", {}, "Detects if someone is using a
  util.toast("There are no unreleased vehicles in Online as of GTA:O Version 1.66")
 end, true)
 
-menu.toggle_loop(detections, "Modded Weapon", {}, "Detects if someone is using a weapon that can not be obtained in online.", function()
+menu.toggle_loop(detections, "Modded Weapon", {"detectguns"}, "Detects if someone is using a weapon that can not be obtained in online.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         for i, hash in ipairs(modded_weapons) do
@@ -1340,7 +1340,7 @@ menu.toggle_loop(detections, "Modded Weapon", {}, "Detects if someone is using a
     end
 end)
 
-menu.toggle_loop(detections, "Modded Vehicle", {}, "Detects if someone is using a vehicle that can not be obtained in online.", function()
+menu.toggle_loop(detections, "Modded Vehicle", {"detectcars"}, "Detects if someone is using a vehicle that can not be obtained in online.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local modelHash = players.get_vehicle_model(pid)
         for i, name in ipairs(modded_vehicles) do
@@ -1352,7 +1352,7 @@ menu.toggle_loop(detections, "Modded Vehicle", {}, "Detects if someone is using 
     end
 end)
 
-menu.toggle_loop(detections, "Noclip", {}, "Detects if the player is using noclip aka levitation", function()
+menu.toggle_loop(detections, "Noclip", {"detectnoclip"}, "Detects if the player is using noclip aka levitation", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local ped_ptr = entities.handle_to_pointer(ped)
@@ -1377,7 +1377,7 @@ menu.toggle_loop(detections, "Noclip", {}, "Detects if the player is using nocli
     end
 end)
 
-menu.toggle_loop(detections, "Super Drive", {}, "", function()
+menu.toggle_loop(detections, "Super Drive", {"detectsuperdrive"}, "", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local vehicle = PED.GET_VEHICLE_PED_IS_USING(ped)
@@ -1390,7 +1390,7 @@ menu.toggle_loop(detections, "Super Drive", {}, "", function()
     end
 end)
 
-menu.toggle_loop(detections, "Spectate", {}, "Detects if someone is spectating you.", function()
+menu.toggle_loop(detections, "Spectate", {"detectwatchers"}, "Detects if someone is spectating you.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         for i, interior in ipairs(interior_stuff) do
             local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -1405,7 +1405,7 @@ menu.toggle_loop(detections, "Spectate", {}, "Detects if someone is spectating y
     end
 end)
 
-menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleported", function()
+menu.toggle_loop(detections, "Teleport", {"detecttp"}, "Detects if the player has teleported", function()
     for _, pid in ipairs(players.list(false, true, true)) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         if not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and not PED.IS_PED_DEAD_OR_DYING(ped) then
@@ -1420,7 +1420,7 @@ menu.toggle_loop(detections, "Teleport", {}, "Detects if the player has teleport
         end
     end
 end)
-menu.toggle_loop(detections, "Insane Money", {}, "Detects if a player in your lobby has non-legit money", function()
+menu.toggle_loop(detections, "[B] Insane Money", {}, "Detects if a player in your lobby has non-legit money", function()
     if players.get_money(pid) > 1000000000 then
         notify(players.get_name(pid) .. "has an insane amount of money")
     end
@@ -2841,6 +2841,14 @@ players.on_join(function(pid)
     set_up_player_actions(pid)
 end)
 players.dispatch_on_join()
+menu.trigger_commands("detectgod")
+menu.trigger_commands("detectvehgod")
+menu.trigger_commands("detectguns")
+menu.trigger_commands("detectcars")
+menu.trigger_commands("detectnoclip")
+menu.trigger_commands("detectsuperdrive")
+menu.trigger_commands("detectwatchers")
+menu.trigger_commands("detecttp")
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)

@@ -27,6 +27,8 @@ repeat
     util.yield()
 until response
 
+local start_time = util.current_time_millis()
+
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
     util.toast("Restarting Network Menu.")
     util.restart_script()

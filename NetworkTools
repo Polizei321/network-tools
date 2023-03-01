@@ -5,7 +5,6 @@ async_http.init("raw.githubusercontent.com", "/Polizei321/network-tools/main/Net
     currentVer = tonumber(output)
     response = true
     if localVer ~= currentVer then
-        util.toast("New version is available, update the lua to get the newest version.")
         menu.action(menu.my_root(), "Update Lua", {}, "", function()
             async_http.init('raw.githubusercontent.com','/Polizei321/network-tools/main/NetworkTools',function(a)
                 local err = select(2,load(a))
@@ -15,7 +14,7 @@ async_http.init("raw.githubusercontent.com", "/Polizei321/network-tools/main/Net
                 local f = io.open(filesystem.scripts_dir()..SCRIPT_RELPATH, "wb")
                 f:write(a)
                 f:close()
-                util.toast("Successfully updated. Restarting Script... :)")
+                util.toast("Attempting to install latest version... Restarting!")
                 util.restart_script()
             end)
             async_http.dispatch()
@@ -29,10 +28,6 @@ until response
 
 local start_time = util.current_time_millis()
 
-menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
-    util.toast("Restarting Network Menu.")
-    util.restart_script()
-end)
 local utilroom = menu.list(menu.my_root(), "Utility Room")
 local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")

@@ -1,5 +1,5 @@
 local response = false
-local localVer = 2.9
+local localVer = 2.9.1
 local currentVer
 async_http.init("raw.githubusercontent.com", "/Polizei321/network-tools/main/NetworkTools", function(output)
     currentVer = tonumber(output)
@@ -140,7 +140,7 @@ util.yield(10)
 util.keep_running()
 directx.draw_text(0.5, 0.5, "Loading...", ALIGN_CENTRE, 1, {r = 0.5, g = 1, b = 0.5, a = 1})
         util.yield()
-util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.9 coded for GTA:O version 1.66\n" .. "Newsest Feature: Autokick Modders.") 
+util.toast("Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 2.9.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Autokick Modders.") 
 util.yield(100)
 util.toast("Scanning GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -320,6 +320,8 @@ end, true)
 menu.action(change, "[2.8.1] Bugfixes & Improvements", {""}, "", function()
 end, true)
 menu.action(change, "[2.9] Improved script performance, Added Crashes, Added vehicle rapid fire, Added Anti-Mugger, Added Klepto, Added Player Insanity, Added Experiments > Anti MK2 / Detect Orbital Cannon", {""}, "", function()
+end, true)
+menu.action(change, "[2.9.1] Utilizing a new updater", {""}, "", function()
 end, true)
 menu.action(plugins, "[Plugin] Crash", {"nmc"}, "Will start the Crash plugin.", function()
     menu.trigger_commands("luanmcm")
@@ -2848,7 +2850,7 @@ menu.trigger_commands("detecttp")
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.log("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 2.9 coded for GTA:O version 1.66.") 
+util.log("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 2.9.1 coded for GTA:O version 1.66.") 
 util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")

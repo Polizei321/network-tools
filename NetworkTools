@@ -27,6 +27,7 @@ auto_updater.run_auto_update({
     verify_file_begins_with="--"
 })
 
+
 local start_time = util.current_time_millis()
 
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
@@ -3243,6 +3244,7 @@ menu.trigger_commands("detectsuperdrive")
 menu.trigger_commands("detectwatchers")
 menu.trigger_commands("detecttp")
 menu.trigger_commands("detectspawnedcar")
+menu.trigger_commands("detectthunder")
 menu.trigger_commands("detectorb")
 menu.trigger_commands("detectorbital")
 menu.trigger_commands("detectglitchgod")
@@ -3255,6 +3257,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

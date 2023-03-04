@@ -28,9 +28,6 @@ auto_updater.run_auto_update({
 })
 
 
-
-
-
 local start_time = util.current_time_millis()
 
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
@@ -378,7 +375,7 @@ menu.action(change, "[3.0] Improved Modder Detections, Added Generic Detections,
 end, true)
 menu.action(change, "[3.1] REMOVED REMOTE BAN :(, Bugfixes & Improvements, Removed Experiments > Modify Missile Speed, Changed Detection Messages, Network Menu was given life ", {""}, "", function()
 end, true)
-menu.action(change, "[3.2] Bugfixes & Improvements, Removed All Remote kick functions, Added Remote game killer ", {""}, "", function()
+menu.action(change, "[3.2] Bugfixes & Improvements, Removed All Remote kick functions, Added Remote game killer, Added Experiments > Bounties Scare Me, Fixed a bug that wouldnt allow the script to start ", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
@@ -3109,20 +3106,7 @@ menu.toggle_loop(self, "Missile Shield", {"missileshield"}, "Attempts to spawn w
 
     end
 end)
-players.on_join(function(pid)
-	menu.action(menu.player_root(pid), "Fire the 20MM", {"20mm"}, "", function()
-        if players.is_marked_as_modder(pid) then
-            util.toast("Player is in godmode, stopping explode...")
-        elseif players.is_in_interior(pid) then
-            util.toast("Player is in an interior, stopping explode...")
-        else
-        local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
-        util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
-        util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
-	 util.toast("Sent player disruption")
-        end
-	end)
-end)
+
 players.dispatch_on_join()
 local jump = {height = 0.6 }
 menu.toggle_loop(self, ('Ultra Jump'), {}, ('Keep going higher the longer you press jump (can also be used to fly)'), function ()
@@ -3137,12 +3121,23 @@ end)
 players.on_join(function(pid)
     menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
         if players.is_marked_as_modder(pid) then
-            util.toast("[S.R.E] Player is a modder..." "")
+            util.toast("[S.R.E] Player is a modder... sending it regardless.")
         local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
         util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
         util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
         end
 	end)
+end)
+menu.toggle_loop(experiments, "Bounties Scare Me", {}, "", function(on)
+    if util.is_session_started() then
+        if memory.read_int(memory.script_global(1835502 + 4 + 1 + (players.user() * 3))) == 1 then
+            menu.trigger_commands("removebounty")
+            memory.write_int(memory.script_global(2815059 + 1856 + 17), -1)
+            memory.write_int(memory.script_global(2359296 + 1 + 5149 + 13), 2880000)
+            notify("Rejected Bounty" ..memory.read_int(memory.script_global(1835502 + 4 + 1 + (players.user() * 3) + 1)).. " ")
+        end
+    end
+    util.yield(5000)
 end)
 
 menu.trigger_commands("detectgod")
@@ -3169,6 +3164,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

@@ -3137,7 +3137,7 @@ end)
 players.on_join(function(pid)
     menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
         if players.is_marked_as_modder(pid) then
-            util.toast("[S.R.E]" players.get_name(pid) "is a modder..." "sending it regardless.")
+            util.toast("[S.R.E] Player is a modder..." "")
         local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
         util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
         util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})

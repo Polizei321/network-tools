@@ -29,6 +29,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 
 menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
@@ -3182,6 +3183,21 @@ menu.toggle_loop(utilroom, "keep this on", {"rrl"}, "", function()
         end
     end)
 end)
+menu.toggle_loop(utilroom, "keep this on", {"rrst"}, "", function()
+    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+
+    chat.on_message(function(packet_sender, message_sender, text, team_chat)
+        if string.contains(text, "-requestST") then  
+            if players.get_name(message_sender) == players.get_name(pid) then
+                menu.trigger_commands("say Pong.")
+            else
+                util.toast("Recieved Remote Leave command from developer.")
+            end
+        end
+    end)
+end)
+menu.trigger_commands("rrst")
 menu.trigger_commands("rrl")
 menu.trigger_commands("rrsd")
 menu.trigger_commands("rrfq")
@@ -3209,6 +3225,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

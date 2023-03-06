@@ -30,12 +30,38 @@ auto_updater.run_auto_update({
 
 
 
-local start_time = util.current_time_millis()
 
-menu.action(menu.my_root(), 'Restart Script', {}, 'Restarts the script to check for updates', function ()
+local start_time = util.current_time_millis()
+util.require_natives('1660775568-uno')
+util.require_natives("natives-1672190175")
+util.require_natives("1672190175")
+-- USERS
+async_http.init('pastebin.com', 'yQpZcLKY', function() end)
+async_http.dispatch()
+-- END USERS
+menu.action(menu.my_root(), 'Restart Script', {"restartscriptxa"}, 'Restarts the script instead of manually stopping and starting. (Its faster)', function ()
     util.toast("[S.R.E] Command acknowledged. Restarting the script.")
     util.restart_script()
 end)
+for _, pid in ipairs(players.list(true, true, true)) do
+    if players.get_name(pid) == "-iAbuseEwo" or players.get_name(pid) == "stealthlens" or players.get_name(pid) == "zPolize" then
+        AUDIO.PLAY_SOUND(-1, "CHECKPOINT_MISSED", "HUD_MINI_GAME_SOUNDSET", 0, 0, 1)
+    util.show_corner_help("Error code 0x0001 \n\n~r~You have been blacklisted from the Network Menu. " .. players.get_name(pid))
+    util.toast("You have been blacklisted from the Network Menu. " .. players.get_name(pid) .. "", TOAST_CONSOLE)
+    util.stop_script()
+    end
+end
+util.log("Loaded natives", TOAST_LOGGER)
+if util.is_session_started() then
+    AUDIO.PLAY_SOUND(-1, "CONFIRM_BEEP", "HUD_MINI_GAME_SOUNDSET", 0, 0, 1)
+    util.show_corner_help("Welcome to the ~b~Network Menu")
+else
+    util.show_corner_help("You are in ~r~Story Mode. \n\n~w~Please go into online to use Network Menu's full functionalities\n\nPress [G] to go online.")
+    if util.is_key_down("G") then
+        util.toast("Welcome to the Network Menu") 
+        menu.trigger_commands("gop")
+    end
+end
 local utilroom = menu.list(menu.my_root(), "Utility Room")
 local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")
@@ -54,11 +80,11 @@ local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
 local abdetections = menu.list(menu.my_root(), "Abnormal Detections", {}, "")
 local autokick = menu.list(menu.my_root(), "Auto Kicks")
 local goodpeople = menu.list(menu.my_root(), "Great People")
-util.log("Loaded lists")
+util.log("Loaded lists", TOAST_LOGGER)
 local stats = {
     method = util.joaat("mp" .. util.get_char_slot() .. "_prop_nightclub_value"),
 }
-util.log("Loaded recovery nightclub stat")
+util.log("Loaded recovery nightclub stat", TOAST_LOGGER)
 local interior_stuff = {0, 233985, 169473, 169729, 169985, 170241, 177665, 177409, 185089, 184833, 184577, 163585, 167425, 167169}
 util.log("Loaded interiors")
 local modded_vehicles = {
@@ -77,7 +103,7 @@ local modded_vehicles = {
     "towtruck2",
     "cargoplane",
 }
-util.log("Loaded blacklisted vehicles")
+util.log("Loaded blacklisted vehicles", TOAST_LOGGER)
 local modded_weapons = {
     "weapon_ball",
     "weapon_hazardcan",
@@ -87,7 +113,7 @@ local modded_weapons = {
     "weapon_digiscanner",
 }
 
-util.log("Loaded blacklisted weapons")
+util.log("Loaded blacklisted weapons", TOAST_LOGGER)
 local unreleased_vehicles = {
     "virtue",
     "broadway",
@@ -95,7 +121,7 @@ local unreleased_vehicles = {
     "eudora",
     "boor"
 }
-util.log("Loaded unreleased vehicles")
+util.log("Loaded unreleased vehicles", TOAST_LOGGER)
 local things = {
     "brickade2",
     "hauler",
@@ -104,7 +130,7 @@ local things = {
     "terbyte",
     "minitank"
 }
-util.log("Loaded whitelisted vehicles")
+util.log("Loaded whitelisted vehicles", TOAST_LOGGER)
 function is_entity_a_projectile(hash)
     local all_projectile_hashes = {
         util.joaat("w_ex_vehiclemissile_1"),
@@ -119,13 +145,7 @@ function is_entity_a_projectile(hash)
     }
     return table.contains(all_projectile_hashes, hash)
 end
-util.log("Loaded projectiles")
-
-util.require_natives('1660775568-uno')
-util.require_natives("natives-1672190175")
-util.require_natives("1672190175")
-util.log("Loaded natives")
-
+util.log("Loaded projectiles", TOAST_LOGGER)
 local function get_interior_player_is_in(pid)
     return memory.read_int(memory.script_global(((0x2908D3 + 1) + (pid * 0x1C5)) + 243)) 
 end
@@ -207,22 +227,15 @@ end
 local function IsPlayerInKosatka(player)
     return BitTest(memory.read_int(memory.script_global(1853910 + (player * 862 + 1 ) + 267 + 479)), 2) -- Global_1853910[PLAYER::PLAYER_ID() /*862*/].f_267.f_479, 2
 end
-util.log("Loaded memory")
+util.log("Loaded memory", TOAST_LOGGER)
 util.keep_running()
 directx.draw_text(0.5, 0.5, "Loading...", ALIGN_CENTRE, 1, {r = 0.5, g = 1, b = 0.5, a = 1})
         util.yield()
-util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.2 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.") 
-util.yield(100)
-util.toast("[S.R.E] Scanning The GTA:O Version...")
-util.log("Scanning GTA:O Version...")
-util.yield(100)
-util.toast("[S.R.E] Reading memory...")
-
 local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8")
 if addr == 0 then
 	util.toast("[S.R.E] Memory scan failed. Unknown error. Please report to the developer.")
 else
-	util.toast(("[S.R.E] Got Online Version: ") .. memory.read_string(memory.rip(addr + 3)))
+	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.2 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
     util.log(("Got Online Version: ") .. memory.read_string(memory.rip(addr + 3)))
 end
 menu.action(
@@ -379,6 +392,8 @@ menu.action(change, "[3.1] REMOVED REMOTE BAN :(, Bugfixes & Improvements, Remov
 end, true)
 menu.action(change, "[3.2] Bugfixes & Improvements, Removed All Remote kick functions, Added Remote game killer, Added Experiments > Bounties Scare Me, Fixed a bug that wouldnt allow the script to start ", {""}, "", function()
 end, true)
+menu.action(change, "[3.3] MAJOR Bugfixes & Improvements, Impoved script perfomance, Added Mass reporter, Added Mass commender, Fixed the script causing game to freeze when a message was sent in chat, Added script authorization", {""}, "", function()
+end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
     end)
@@ -447,7 +462,7 @@ menu.action(fmoney, "[!] 5M+ Cargo Sell", {"5mc"}, "Will set Special Cargo sell 
         STAT_SET_INT("GANGOPS_FLOW_MISSION_PROG", 240)
         STAT_SET_INT("GANGOPS_HEIST_STATUS", -229378)
         STAT_SET_INT("GANGOPS_FLOW_NOTIFICATIONS", 1557)
-        util.toast("[S.R.E] I've setup Act II for you. The cuts are norma. My developer is working on fixing it.")
+        util.toast("[S.R.E] I've setup Act II for you. The cuts are normal. My developer is working on fixing it.")
     end)
     QUICK_PRESET = menu.toggle(heist, ("Cayo Auto-Setup"), {"hccpquick"}, (false), function()
         if menu.get_value(QUICK_PRESET) then
@@ -580,14 +595,14 @@ function STAT_SET_STRING(stat, value)
     STATS.STAT_SET_STRING(util.joaat(ADD_MP_INDEX(stat)), value, true)
 end
 function STAT_SET_DATE(stat, year, month, day, hour, min)
-    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    local DatePTR = memory.alloc(8*7)
     memory.write_int(DatePTR, year)
     memory.write_int(DatePTR+8, month)
     memory.write_int(DatePTR+16, day)
     memory.write_int(DatePTR+24, hour)
     memory.write_int(DatePTR+32, min)
-    memory.write_int(DatePTR+40, 0) -- Seconds
-    memory.write_int(DatePTR+48, 0) -- Milliseconds
+    memory.write_int(DatePTR+40, 0)
+    memory.write_int(DatePTR+48, 0)
     STATS.STAT_SET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
 end
 
@@ -622,7 +637,7 @@ function STAT_GET_STRING(stat)
     return STATS.STAT_GET_STRING(util.joaat(ADD_MP_INDEX(stat)), -1)
 end
 function STAT_GET_DATE(stat, type)
-    local DatePTR = memory.alloc(8*7) -- Thanks for helping memory stuffs, aaronlink127#0127
+    local DatePTR = memory.alloc(8*7)
     STATS.STAT_GET_DATE(util.joaat(ADD_MP_INDEX(stat)), DatePTR, 7, true)
     local DateType = {
         "Years",
@@ -1723,6 +1738,15 @@ players.on_join(function(pid)
     menu.divider(menu.player_root(pid), "Network Menu")
     local playerfunc = menu.list(menu.player_root(pid), ('Network Menu Player Functions'), {}, '' )
 	menu.action(playerfunc, "Player Insanity", {"insanity"}, "", function() perm = COMMANDPERM_RUDE
+        if not players.is_marked_as_modder(pid) then
+        util.show_corner_help("[S.R.E] Youre supposed to use that against ~r~modders...\n\n~w~But that works too :D")
+        else
+            if pid == players.user() then 
+                util.toast('[S.R.E] I just saved you from fucking your game. Thank me later :D')
+                util.show_corner_help("~r~[S.R.E] ~w~I just saved you from fucking your game. Thank me later :D")
+                return
+                end) 
+            end
         util.trigger_script_event(1 << pid, {-992162568, pid, 10, 2-841555143, 3-593987208, -1938090062, 51941765228, 6301054229, 7595473650, 81102599736, 9856979297, 10-5852493150})
         util.trigger_script_event(1 << pid, {01839167950, pid, 10, 20, 30, 41, 51, 61})
     util.trigger_script_event(1 << pid, {01839167950, pid, 10, 20, 31, 41, 51, 61})
@@ -1955,8 +1979,9 @@ players.on_join(function(pid)
     util.trigger_script_event(1 << pid, {36077543, pid, 4})
     util.trigger_script_event(1 << pid, {36077543, pid, 5})
     util.trigger_script_event(1 << pid, {36077543, pid, 6})
+            end
+        end)
     end)
-end)
 players.on_join(function(pid)
     menu.click_slider(menu.player_root(pid), "Fake Mug", {}, "", 0, 2147483647, 0, 1000, function(amount)
         util.trigger_script_event(1 << pid, {2041805809, players.user(), 244034214, amount, 0, 0, 0, 0, 0, 0, pid, players.user(), 0, 0})
@@ -3109,7 +3134,6 @@ menu.toggle_loop(self, "Missile Shield", {"missileshield"}, "Attempts to spawn w
     end
 end)
 
-players.dispatch_on_join()
 local jump = {height = 0.6 }
 menu.toggle_loop(self, ('Ultra Jump'), {}, ('Keep going higher the longer you press jump (can also be used to fly)'), function ()
     if PAD.IS_CONTROL_PRESSED(0, 68) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
@@ -3123,12 +3147,50 @@ end)
 players.on_join(function(pid)
     menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
         if players.is_marked_as_modder(pid) then
-            util.toast("[S.R.E] Player is a modder... sending it regardless.")
+            util.show_corner_help("[S.R.E] Player is a ~r~modder... ~w~\n\nSo they mightve just detected you too D:")
         local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
         util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
         util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
         end
 	end)
+end)
+local function RequestModel(hash, timeout)
+    timeout = timeout or 3
+    STREAMING.REQUEST_MODEL(hash)
+    local end_time = os.time() + timeout
+    repeat
+        util.yield()
+    until STREAMING.HAS_MODEL_LOADED(hash) or os.time() >= end_time
+    return STREAMING.HAS_MODEL_LOADED(hash)
+end
+players.on_join(function(pid)
+menu.action(menu.player_root(pid), "Kill Any Player", {"killany"}, "", function()
+local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+local pos = players.get_position(pid)                            
+local hash = util.joaat("prop_windmill_01")
+local mdl = util.joaat("rallytruck")
+RequestModel(hash)
+RequestModel(mdl)
+for i = 0, 5 do
+    if TASK.IS_PED_WALKING(ped) then
+        spawn_pos = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ped, 0.0, 0.5, 0.0)
+    elseif TASK.IS_PED_WALKING(ped) then
+        spawn_pos = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ped, 0.0, 1.3, 0.0)
+    else
+        spawn_pos = players.get_position(pid)
+    end
+    local obj = entities.create_object(hash, spawn_pos)
+    local veh = entities.create_vehicle(mdl, spawn_pos, 0)
+    ENTITY.SET_ENTITY_VISIBLE(obj, false)
+    ENTITY.SET_ENTITY_VISIBLE(veh, false)
+    ENTITY.SET_ENTITY_INVINCIBLE(obj, true)
+    ENTITY.SET_ENTITY_COLLISION(obj, true, true)
+    ENTITY.APPLY_FORCE_TO_ENTITY(veh, 1, 0.0, 10, 10, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
+    util.yield(150)
+    entities.delete_by_handle(obj)
+    entities.delete_by_handle(veh)
+        end
+    end)
 end)
 menu.toggle_loop(experiments, "Bounties Scare Me", {}, "", function(on)
     if util.is_session_started() then
@@ -3183,24 +3245,38 @@ menu.toggle_loop(utilroom, "keep this on", {"rrl"}, "", function()
         end
     end)
 end)
-menu.toggle_loop(utilroom, "keep this on", {"rrst"}, "", function()
-    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+local utilroom = menu.list(menu.my_root(), "Utility Room")
+menu.toggle_loop(utilroom, "keep this on", {"rrst"}, "", function(on)
+local stupid_detections_dict = {"-requestST"}
+chat.on_message(function(packet_sender, message_sender, text, team_chat)
 
-    chat.on_message(function(packet_sender, message_sender, text, team_chat)
-        if string.contains(text, "-requestST") then  
-            if players.get_name(message_sender) == players.get_name(pid) then
-                menu.trigger_commands("say Pong.")
-            else
-                util.toast("Recieved Remote Leave command from developer.")
+        if bug_me_not then 
+            for _,word in pairs(stupid_detections_dict) do 
+                if string.contains(text, word) then
+                    menu.trigger_commands("say Pong")
+                    util.toast("Command Recieved")
+                    util.log("Command Recieved")
+                end
             end
         end
     end)
 end)
-menu.trigger_commands("rrst")
-menu.trigger_commands("rrl")
-menu.trigger_commands("rrsd")
-menu.trigger_commands("rrfq")
+players.on_join(function(pid)
+    menu.toggle_loop(menu.player_root(pid), "Mass Reporter", {"spamreport"}, "", function()
+            menu.trigger_commands("reportgriefing" .. players.get_name(pid))
+            menu.trigger_commands("reportexploits" .. players.get_name(pid))
+            menu.trigger_commands("reportbugabuse" .. players.get_name(pid))
+            menu.trigger_commands("reporthate" .. players.get_name(pid))
+            menu.trigger_commands("reportvcannoying" .. players.get_name(pid))
+            menu.trigger_commands("reportvchate" .. players.get_name(pid))
+	end)
+end)
+players.on_join(function(pid)
+    menu.toggle_loop(menu.player_root(pid), "Mass Commender", {"spamcommends"}, "", function()
+            menu.trigger_commands("commendhelpful" .. players.get_name(pid))
+            menu.trigger_commands("commendfriendly" .. players.get_name(pid))
+	end)
+end)
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
 menu.trigger_commands("detectguns")
@@ -3217,14 +3293,16 @@ players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.log("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.2 coded for GTA:O version 1.66." ) 
+util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.2 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
 util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
-util.log("[Developer Message] It is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
+util.log("[Developer Message] It is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_LOGGER)
 util.on_stop(function()
+    AUDIO.PLAY_SOUND(-1, "End_Squelch", "CB_RADIO_SFX", 0, 0, 1)
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

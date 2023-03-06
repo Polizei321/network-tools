@@ -235,7 +235,7 @@ local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 
 if addr == 0 then
 	util.toast("[S.R.E] Memory scan failed. Unknown error. Please report to the developer.")
 else
-	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.2 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
+	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
     util.log(("Got Online Version: ") .. memory.read_string(memory.rip(addr + 3)))
 end
 menu.action(
@@ -3293,7 +3293,7 @@ players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.2 coded for GTA:O version 1.66.", TOAST_LOGGER) 
+util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.3 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
 util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
 util.log("[Developer Message] It is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_LOGGER)

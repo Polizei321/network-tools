@@ -31,6 +31,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
@@ -1745,7 +1746,6 @@ players.on_join(function(pid)
                 util.toast('[S.R.E] I just saved you from fucking your game. Thank me later :D')
                 util.show_corner_help("~r~[S.R.E] ~w~I just saved you from fucking your game. Thank me later :D")
                 return
-                end) 
             end
         util.trigger_script_event(1 << pid, {-992162568, pid, 10, 2-841555143, 3-593987208, -1938090062, 51941765228, 6301054229, 7595473650, 81102599736, 9856979297, 10-5852493150})
         util.trigger_script_event(1 << pid, {01839167950, pid, 10, 20, 30, 41, 51, 61})
@@ -3302,6 +3302,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

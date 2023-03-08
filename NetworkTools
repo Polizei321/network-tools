@@ -32,6 +32,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
@@ -45,24 +46,29 @@ menu.action(menu.my_root(), 'Restart Script', {"restartscriptxa"}, 'Restarts the
     util.restart_script()
 end)
 for _, pid in ipairs(players.list(true, true, true)) do
-    if players.get_name(pid) == "-iAbuseEwo" or players.get_name(pid) == "stealthlens" or players.get_name(pid) == "zPolize" then
+    if players.get_name(pid) == "-iAbuseEwo-" or players.get_name(pid) == "stealthlens" then
         AUDIO.PLAY_SOUND(-1, "CHECKPOINT_MISSED", "HUD_MINI_GAME_SOUNDSET", 0, 0, 1)
     util.show_corner_help("Error code 0x0001 \n\n~r~You have been blacklisted from the Network Menu. " .. players.get_name(pid))
     util.toast("You have been blacklisted from the Network Menu. " .. players.get_name(pid) .. "", TOAST_CONSOLE)
     util.stop_script()
     end
 end
-util.log("Loaded natives", TOAST_LOGGER)
 if util.is_session_started() then
+    
     AUDIO.PLAY_SOUND(-1, "CONFIRM_BEEP", "HUD_MINI_GAME_SOUNDSET", 0, 0, 1)
     util.show_corner_help("Welcome to the ~b~Network Menu")
 else
-    util.show_corner_help("You are in ~r~Story Mode. \n\n~w~Please go into online to use Network Menu's full functionalities\n\nPress [G] to go online.")
-    if util.is_key_down("G") then
-        util.toast("Welcome to the Network Menu") 
-        menu.trigger_commands("gop")
+    util.show_corner_help("You are in ~r~Story Mode. \n\n~w~Please go into online to use Network Menu's full functionalities")
+end
+for _, pid in ipairs(players.list(true, true, true)) do
+    if players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+        AUDIO.PLAY_SOUND(-1, "Boss_Blipped", "GTAO_Magnate_Hunt_Boss_SoundSet", 0, 0, 1)
+        AUDIO.PLAY_SOUND(-1, "1st_Person_Transition", "PLAYER_SWITCH_CUSTOM_SOUNDSET", 0, 0, 1)
+    util.show_corner_help("Welcome to the ~b~Network Menu \n[Dev Edition]\n\n~w~You have access to developer commands " .. players.get_name(pid) .. ". Nice! :D")
+    util.toast("You have access to developer commands " .. players.get_name(pid) .. " Nice! :D", TOAST_CONSOLE)
     end
 end
+util.log("Loaded natives", TOAST_LOGGER)
 local utilroom = menu.list(menu.my_root(), "Utility Room")
 local change = menu.list(menu.my_root(), "Changelog")
 local meanings = menu.list(menu.my_root(), "Symbols")
@@ -236,7 +242,7 @@ local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 
 if addr == 0 then
 	util.toast("[S.R.E] Memory scan failed. Unknown error. Please report to the developer.")
 else
-	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.3 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
+	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.4 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
     util.log(("Got Online Version: ") .. memory.read_string(memory.rip(addr + 3)))
 end
 menu.action(
@@ -394,6 +400,8 @@ end, true)
 menu.action(change, "[3.2] Bugfixes & Improvements, Removed All Remote kick functions, Added Remote game killer, Added Experiments > Bounties Scare Me, Fixed a bug that wouldnt allow the script to start ", {""}, "", function()
 end, true)
 menu.action(change, "[3.3] MAJOR Bugfixes & Improvements, Impoved script perfomance, Added Mass reporter, Added Mass commender, Fixed the script causing game to freeze when a message was sent in chat, Added script authorization", {""}, "", function()
+end, true)
+menu.action(change, "[3.4] Added Nuclear Ejection, Added Authorization to commands", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
@@ -1685,12 +1693,14 @@ end, function()
 end)
 menu.toggle_loop(self, "Guns Scare Me", {"fearguns"}, "Turns you into casper if a gun is detected.", function()
     for _, pid in ipairs(players.list(false, true, true)) do
+            if players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         if WEAPON.IS_PED_ARMED(ped, 7) or TASK.GET_IS_TASK_ACTIVE(ped, 199) or TASK.GET_IS_TASK_ACTIVE(ped, 128) 
         or IsPlayerUsingGuidedMissile(pid) or IsPlayerInRcTank(pid) or IsPlayerInRcBandito(pid) or IsPlayerFlyingAnyDrone(pid) then
             NETWORK.SET_REMOTE_PLAYER_AS_GHOST(pid, true)
         else
             NETWORK.SET_REMOTE_PLAYER_AS_GHOST(pid, false)
+            end
         end
     end
 end, function()
@@ -1719,6 +1729,40 @@ menu.toggle_loop(session, "Klepto", {}, "Automatically forces Script Host", func
     menu.trigger_commands("scripthost")
     util.yield(1)
 end)
+menu.action(session, "Nuclear Eject", {"nucleareject"}, "", function()
+    menu.trigger_commands("explode all")
+    util.yield(300)
+    local user = players.user()
+    local user_ped = players.user_ped()
+    local pos = players.get_position(user)
+    util.yield(100)
+    PLAYER.SET_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(players.user(), 0xFBF7D21F)
+    WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+    TASK.TASK_PARACHUTE_TO_TARGET(user_ped, pos.x, pos.y, pos.z)
+    util.yield()
+    TASK.CLEAR_PED_TASKS_IMMEDIATELY(user_ped)
+    util.yield(250)
+    WEAPON.GIVE_DELAYED_WEAPON_TO_PED(user_ped, 0xFBAB5776, 100, false)
+    PLAYER.CLEAR_PLAYER_PARACHUTE_PACK_MODEL_OVERRIDE(user)
+    util.yield(1000)
+    for i = 1, 5 do
+        util.spoof_script("freemode", SYSTEM.WAIT)
+    end
+    ENTITY.SET_ENTITY_HEALTH(user_ped, 0)
+    NETWORK.NETWORK_RESURRECT_LOCAL_PLAYER(pos.x, pos.y, pos.z, 0, false, false, 0)
+    util.toast("Ejecting in...")
+    util.toast("3...")
+    util.yield(1000)
+    util.toast("2...")
+    util.yield(1000)
+    util.toast("1...")
+    util.yield(1000)
+    util.toast("EJECTING!.")
+    util.yield(1000)
+    util.toast("EJECTING!.")
+    util.yield(1000)
+    util.toast("EJECTING!.")
+    end)
 menu.toggle_loop(vehicle, "Vehicle Rapid Fire", {"rapidfireveh"}, "", function()
     menu.trigger_commands("fixveh")
     util.yield(1)
@@ -1739,13 +1783,10 @@ players.on_join(function(pid)
     menu.divider(menu.player_root(pid), "Network Menu")
     local playerfunc = menu.list(menu.player_root(pid), ('Network Menu Player Functions'), {}, '' )
 	menu.action(playerfunc, "Player Insanity", {"insanity"}, "", function() perm = COMMANDPERM_RUDE
-        if not players.is_marked_as_modder(pid) then
-        util.show_corner_help("[S.R.E] Youre supposed to use that against ~r~modders...\n\n~w~But that works too :D")
-        else
             if pid == players.user() then 
                 util.toast('[S.R.E] I just saved you from fucking your game. Thank me later :D')
                 util.show_corner_help("~r~[S.R.E] ~w~I just saved you from fucking your game. Thank me later :D")
-                return
+                return --blackp
             end
         util.trigger_script_event(1 << pid, {-992162568, pid, 10, 2-841555143, 3-593987208, -1938090062, 51941765228, 6301054229, 7595473650, 81102599736, 9856979297, 10-5852493150})
         util.trigger_script_event(1 << pid, {01839167950, pid, 10, 20, 30, 41, 51, 61})
@@ -1979,7 +2020,9 @@ players.on_join(function(pid)
     util.trigger_script_event(1 << pid, {36077543, pid, 4})
     util.trigger_script_event(1 << pid, {36077543, pid, 5})
     util.trigger_script_event(1 << pid, {36077543, pid, 6})
-            end
+    if not players.is_marked_as_modder(pid) then
+        util.show_corner_help("[S.R.E] Youre supposed to use that against ~r~modders...\n\n~w~But that works too :D")
+    end --black2
         end)
     end)
 players.on_join(function(pid)
@@ -3146,12 +3189,18 @@ menu.toggle_loop(self, ('Ultra Jump'), {}, ('Keep going higher the longer you pr
 end)
 players.on_join(function(pid)
     menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
+        for _, pid in ipairs(players.list(true, true, true)) do
+            if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+                util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
+            else
         if players.is_marked_as_modder(pid) then
             util.show_corner_help("[S.R.E] Player is a ~r~modder... ~w~\n\nSo they mightve just detected you too D:")
         local int = memory.read_int(memory.script_global(1894573 + 1 + (pid * 608) + 510))
         util.trigger_script_event(1 << pid, {-95341040, players.user(), 194, 0, 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, int})
         util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
         end
+    end
+end
 	end)
 end)
 local function RequestModel(hash, timeout)
@@ -3165,6 +3214,10 @@ local function RequestModel(hash, timeout)
 end
 players.on_join(function(pid)
 menu.action(menu.player_root(pid), "Kill Any Player", {"killany"}, "", function()
+    for _, pid in ipairs(players.list(true, true, true)) do
+        if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+            util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
+        else
 local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
 local pos = players.get_position(pid)                            
 local hash = util.joaat("prop_windmill_01")
@@ -3189,6 +3242,8 @@ for i = 0, 5 do
     util.yield(150)
     entities.delete_by_handle(obj)
     entities.delete_by_handle(veh)
+end
+end
         end
     end)
 end)
@@ -3202,64 +3257,6 @@ menu.toggle_loop(experiments, "Bounties Scare Me", {}, "", function(on)
         end
     end
     util.yield(5000)
-end)
-menu.toggle_loop(utilroom, "keep this on", {"rrsd"}, "", function()
-    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
-
-    chat.on_message(function(packet_sender, message_sender, text, team_chat)
-        if string.contains(text, "-requestSD") then  
-            if players.get_name(message_sender) == players.get_name(pid) then
-                menu.trigger_commands("yeet")
-            else
-                util.toast("Recieved Remote Shutdown command from developer.")
-            end
-        end
-    end)
-end)
-menu.toggle_loop(utilroom, "keep this on", {"rrfq"}, "", function()
-    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
-
-    chat.on_message(function(packet_sender, message_sender, text, team_chat)
-        if string.contains(text, "-requestFQ") then  
-            if players.get_name(message_sender) == players.get_name(pid) then
-                menu.trigger_commands("forcequit")
-            else
-                util.toast("Recieved Remote Force-Quit command from developer.")
-            end
-        end
-    end)
-end)
-menu.toggle_loop(utilroom, "keep this on", {"rrl"}, "", function()
-    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
-
-    chat.on_message(function(packet_sender, message_sender, text, team_chat)
-        if string.contains(text, "-requestRL") then  
-            if players.get_name(message_sender) == players.get_name(pid) then
-                menu.trigger_commands("bealone")
-            else
-                util.toast("Recieved Remote Leave command from developer.")
-            end
-        end
-    end)
-end)
-local utilroom = menu.list(menu.my_root(), "Utility Room")
-menu.toggle_loop(utilroom, "keep this on", {"rrst"}, "", function(on)
-local stupid_detections_dict = {"-requestST"}
-chat.on_message(function(packet_sender, message_sender, text, team_chat)
-
-        if bug_me_not then 
-            for _,word in pairs(stupid_detections_dict) do 
-                if string.contains(text, word) then
-                    menu.trigger_commands("say Pong")
-                    util.toast("Command Recieved")
-                    util.log("Command Recieved")
-                end
-            end
-        end
-    end)
 end)
 players.on_join(function(pid)
     menu.toggle_loop(menu.player_root(pid), "Mass Reporter", {"spamreport"}, "", function()
@@ -3277,6 +3274,34 @@ players.on_join(function(pid)
             menu.trigger_commands("commendfriendly" .. players.get_name(pid))
 	end)
 end)
+        menu.action(menu.my_root(), "Dev", {"black"}, "", function()
+            for _, pid in ipairs(players.list(true, true, true)) do
+                if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+                    util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.")
+                else
+            util.toast("uwu")
+                end
+        end
+        end)
+        local function player_toggle_loop(root, pid, menu_name, command_names, help_text, callback)
+            return menu.toggle_loop(root, menu_name, command_names, help_text, function()
+                if not players.exists(pid) then 
+                    util.stop_thread() 
+                end
+                callback()
+            end)
+        end
+
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+    
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestUN") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("unload")
+                    end
+                end
+            end)
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
 menu.trigger_commands("detectguns")
@@ -3293,15 +3318,15 @@ players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.3 coded for GTA:O version 1.66.", TOAST_LOGGER) 
+util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 4 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
-util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.")
-util.log("[Developer Message] It is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_LOGGER)
+util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_ALL)
 util.on_stop(function()
     AUDIO.PLAY_SOUND(-1, "End_Squelch", "CB_RADIO_SFX", 0, 0, 1)
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

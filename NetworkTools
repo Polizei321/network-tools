@@ -38,7 +38,7 @@ util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
 util.require_natives("1672190175")
 -- USERS
-async_http.init('pastebin.com', 'yQpZcLKY', function() end)
+async_http.init('bit.ly', '3F7TtOd', function() end)
 async_http.dispatch()
 -- END USERS
 menu.action(menu.my_root(), 'Restart Script', {"restartscriptxa"}, 'Restarts the script instead of manually stopping and starting. (Its faster)', function ()

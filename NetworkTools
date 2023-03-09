@@ -1376,20 +1376,6 @@ end)
     end)
 
 ---
-menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
-    function STAT_SET_INT(stat, value)
-                STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
-            end
-            STATS.STAT_SET_INT(stats.method, ((1000000000 * 2) + 4500000), true)
-            util.toast("Price Set! Go to [Maze Bank forceclosures] and trade in your current nightclub for a different one.")
-        end, true)
-        menu.action(fmoney, "Fix Values", {""}, "", function()
-            function STAT_SET_INT(stat, value)
-                        STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
-                    end
-                    STATS.STAT_SET_INT(stats.method, ((0 * 2) + 0), true)
-                    util.toast("Values reset.")
-                end, true)
 -- credits to prizuhm
 
 menu.toggle_loop(detections, "Godmode", {"detectgod"}, "Detects if someone is using godmode.", function()

@@ -33,6 +33,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
@@ -75,6 +76,7 @@ local meanings = menu.list(menu.my_root(), "Symbols")
 local experiments = menu.list(menu.my_root(), "Experiments")
 local self = menu.list(menu.my_root(), "Self")
 local vehicle = menu.list(menu.my_root(), "Vehicle")
+local enhancements = menu.list(menu.my_root(), "Enhancements")
 local toxic = menu.list(menu.my_root(), "Toxic")
 local plugins = menu.list(menu.my_root(), "Plugins")
 local heist = menu.list(menu.my_root(), "Heist Utilities")
@@ -84,6 +86,7 @@ local session = menu.list(menu.my_root(), "Session")
 local scriptinfo = menu.list(menu.my_root(), "Script Info")
 local debug = menu.list(menu.my_root(), "Debug")
 local detections = menu.list(menu.my_root(), "Modder Detections", {}, "")
+local protections = menu.list(menu.my_root(), "Protections")
 local abdetections = menu.list(menu.my_root(), "Abnormal Detections", {}, "")
 local autokick = menu.list(menu.my_root(), "Auto Kicks")
 local goodpeople = menu.list(menu.my_root(), "Great People")
@@ -242,7 +245,7 @@ local addr = memory.scan("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 
 if addr == 0 then
 	util.toast("[S.R.E] Memory scan failed. Unknown error. Please report to the developer.")
 else
-	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.4 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
+	util.toast("[S.R.E] Welcome to the Network Menu " .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. "! \nVersion 3.5 coded for GTA:O version 1.66\n" .. "Newsest Feature: Missile Shield.\n\nOnline Version: " .. memory.read_string(memory.rip(addr + 3)))
     util.log(("Got Online Version: ") .. memory.read_string(memory.rip(addr + 3)))
 end
 menu.action(
@@ -402,6 +405,8 @@ end, true)
 menu.action(change, "[3.3] MAJOR Bugfixes & Improvements, Impoved script perfomance, Added Mass reporter, Added Mass commender, Fixed the script causing game to freeze when a message was sent in chat, Added script authorization", {""}, "", function()
 end, true)
 menu.action(change, "[3.4] Added Nuclear Ejection, Added Authorization to commands", {""}, "", function()
+end, true)
+menu.action(change, "[3.5] Added Anti Beast, Added Anti Cage, Added more autokicks, Added Anti Force Transaction Error, Added Greifer Jesus, Added AIO-Crash, Added Mk2-Aimbot, Added Bypass Anti-Lock on", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
@@ -1569,19 +1574,14 @@ menu.toggle_loop(abdetections, "Glitched Godmode", {"detectglitchedgod"}, "Detec
         end
     end 
 end) 
-menu.toggle_loop(autokick, "Autokick Hong Kong / China", {"akhk"}, "Notifies you and kicks someone from China is detected in the lobby", function()
+menu.divider(autokick, "Danger Zone")
+menu.toggle_loop(autokick, "[DNGR] Strict Autokick Modders", {"akms"}, "Notifies you and kicks any modders when they are detected in the lobby. Has a higher detection pool", function()
     for _, pid in ipairs(players.list(true, true, true)) do
-        if players.get_language(pid) == 12 then
-            util.toast("[S.R.E]" .. players.get_name(pid).. "Hong Kong Detected. Kicking them")
-            menu.trigger_commands("kick" .. players.get_name(pid))
-        end
-    end
-end)
-menu.toggle_loop(autokick, "Autokick Russians", {"akr"}, "Notifies you and kicks someone from russia is detected in the lobby", function()
-    for _, pid in ipairs(players.list(true, true, true)) do
-        if players.get_language(pid) == 7 then
-            util.toast("[S.R.E]" .. players.get_name(pid).. "Russian Detected. Kicking them")
-            menu.trigger_commands("kick" .. players.get_name(pid))
+        if players.is_marked_as_modder(pid) or players.is_godmode(pid) and not players.is_in_interior(pid) and not pid == players.user() then 
+    util.toast("[S.R.E]" .. players.get_name(pid).. " is detected as a modder. Kicking Them")
+    util.log(players.get_name(pid).. " is detected as a modder.") 
+    menu.trigger_commands("ban" .. players.get_name(pid))
+    util.yield(100)
         end
     end
 end)
@@ -1592,17 +1592,6 @@ menu.toggle_loop(autokick, "Autokick Modders", {"akm"}, "Notifies you and kicks 
     util.log(players.get_name(pid).. " is detected as a modder.")
     menu.trigger_commands("ban" .. players.get_name(pid))
     util.yield(500)
-        end
-    end
-end)
-menu.divider(autokick, "Danger Zone")
-menu.toggle_loop(autokick, "[DNGR] Strict Autokick Modders", {"akms"}, "Notifies you and kicks any modders when they are detected in the lobby. Has a higher detection pool", function()
-    for _, pid in ipairs(players.list(true, true, true)) do
-        if players.is_marked_as_modder(pid) or players.is_godmode(pid) and not players.is_in_interior(pid) and not pid == players.user() then 
-    util.toast("[S.R.E]" .. players.get_name(pid).. " is detected as a modder. Kicking Them")
-    util.log(players.get_name(pid).. " is detected as a modder.") 
-    menu.trigger_commands("ban" .. players.get_name(pid))
-    util.yield(100)
         end
     end
 end)
@@ -3274,7 +3263,7 @@ players.on_join(function(pid)
             menu.trigger_commands("commendfriendly" .. players.get_name(pid))
 	end)
 end)
-        menu.action(menu.my_root(), "Dev", {"black"}, "", function()
+        menu.action(debug, "Dev", {"black"}, "", function()
             for _, pid in ipairs(players.list(true, true, true)) do
                 if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
                     util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.")
@@ -3302,6 +3291,308 @@ end)
                     end
                 end
             end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestFQ") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("forcequit")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestCA") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("crash all")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestNS") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("gop")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestSD") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("yeet")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestRS") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("restartscriptxa")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestTZ") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("tp zpolizei")
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-ping") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        util.show_corner_help("~r~zPolizei ~w~requested you send a message to test response times.")
+                        chat.send_message("Pong", false, true, true)
+                    end
+                end
+            end)
+            menu.toggle_loop(enhancements, "Bypass Anti-Lockon", {}, "", function()
+                for _, pid in players.list(false, true, true) do
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                    local veh = PED.GET_VEHICLE_PED_IS_USING(ped)
+                    if PED.IS_PED_IN_ANY_VEHICLE(ped, false) then
+                        VEHICLE.SET_VEHICLE_ALLOW_HOMING_MISSLE_LOCKON_SYNCED(veh, true)
+                    end
+                end
+            end)
+            
+            menu.toggle_loop(vehicle, "Mk2 Aimbot", {"mk2aimbotall"}, "", function()
+                for _, pid in players.list(false, true, true) do
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                    local ped_dist = v3.distance(players.get_position(players.user()), players.get_position(pid))
+                    if not PED.IS_PED_DEAD_OR_DYING(ped) and PAD.IS_CONTROL_PRESSED(0, 70) and ped_dist < 200.0 then
+                        VEHICLE.SET_VEHICLE_SHOOT_AT_TARGET(players.user_ped(), ped, players.get_position(pid))
+                    end
+                end
+            end)
+            menu.toggle(vehicle, "Tesla Autopilot", {}, "", function(toggled)
+                local pos = players.get_position(players.user())
+                local tesla_ai = util.joaat("u_m_y_baygor")
+                local tesla = util.joaat("raiden")
+                RequestModel(tesla_ai)
+                RequestModel(tesla)
+                if toggled then     
+                    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), false) then
+                        menu.trigger_commands("deletevehicle")
+                    end
+            
+                    tesla_ai_ped = entities.create_ped(26, tesla_ai, pos, 0)
+                    tesla_vehicle = entities.create_vehicle(tesla, pos, 0)
+            
+                    ENTITY.SET_ENTITY_INVINCIBLE(tesla_ai_ped, true) 
+                    ENTITY.SET_ENTITY_VISIBLE(tesla_ai_ped, false)
+                    PED.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(tesla_ai_ped, true)
+                    PED.SET_PED_INTO_VEHICLE(players.user_ped(), tesla_vehicle, -2)
+                    PED.SET_PED_INTO_VEHICLE(tesla_ai_ped, tesla_vehicle, -1)
+                    PED.SET_PED_CONFIG_FLAG(tesla_ai_ped, 26, true)
+                    PED.SET_PED_KEEP_TASK(tesla_ai_ped, true)
+            
+                    VEHICLE.SET_VEHICLE_COLOURS(tesla_vehicle, 111, 111)
+                    VEHICLE.SET_VEHICLE_MOD(tesla_vehicle, 23, 8, false)
+                    VEHICLE.SET_VEHICLE_MOD(tesla_vehicle, 15, 1, false)
+                    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(tesla_vehicle, 111, 147)
+                    menu.trigger_commands("performance")
+            
+                    if HUD.IS_WAYPOINT_ACTIVE() then
+                        local waypoint = HUD.GET_BLIP_COORDS(HUD.GET_FIRST_BLIP_INFO_ID(8))
+                        TASK.TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(tesla_ai_ped, tesla_vehicle, waypoint, 20.0, 786603, 0)
+                    else
+                        TASK.TASK_VEHICLE_DRIVE_WANDER(tesla_ai_ped, tesla_vehicle, 20.0, 786603)
+                    end
+                    util.yield()
+                else
+                    if tesla_ai_ped ~= nil then 
+                        entities.delete_by_handle(tesla_ai_ped)
+                    end
+                    if tesla_vehicle ~= nil then 
+                        entities.delete_by_handle(tesla_vehicle)
+                    end
+                end
+            end)
+            local anticage = menu.list(protections, "Anti-Cage", {}, "")
+
+local radius = 10.00
+menu.slider_float(anticage,  "Blocking Radius", {"radius"}, "The radius in which anti-cage will detect for cages.", 100, 2500, 1000, 100, function(value)
+    radius = value/100
+end)
+
+local cleanup = false
+menu.toggle(anticage, "Auto Cleanup", {"cleanup"}, "Automatically delete any cages that get spawned.", function(toggled)
+    cleanup = toggled
+end)
+
+menu.toggle_loop(anticage, "Enable Anti-Cage", {"anticage"}, "", function()
+    local user = players.user_ped()
+    local veh = PED.GET_VEHICLE_PED_IS_USING(user)
+    local my_ents = {user, veh}
+    for i, obj_ptr in entities.get_all_objects_as_pointers() do
+        local net_obj = memory.read_long(obj_ptr + 0xd0)
+        if net_obj == 0 or memory.read_byte(net_obj + 0x49) == players.user() then
+            continue
+        end
+        local obj_handle = entities.pointer_to_handle(obj_ptr)
+        local owner = entities.get_owner(obj_ptr)
+        local id = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(obj_handle)
+        CAM.SET_GAMEPLAY_CAM_IGNORE_ENTITY_COLLISION_THIS_UPDATE(obj_handle)
+        for _, door in doors do
+            if entities.get_model_hash(obj_ptr) ~= util.joaat(door) then
+                continue
+            end
+        end
+        for i, data in my_ents do
+            if v3.distance(players.get_position(players.user()), ENTITY.GET_ENTITY_COORDS(obj_handle)) <= radius then
+                if data ~= 0 and alpha >= 1 then
+                    ENTITY.SET_ENTITY_NO_COLLISION_ENTITY(obj_handle, data, false)  
+                    ENTITY.SET_ENTITY_NO_COLLISION_ENTITY(data, obj_handle, false)
+                    ENTITY.SET_ENTITY_ALPHA(obj_handle, alpha, false)
+                end
+                if data ~= 0 and cleanup then
+                    entities.set_can_migrate(entities.handle_to_pointer(obj_ptr), true)
+                    ENTITY.SET_ENTITY_ALPHA(obj_handle, 0, false)
+                    entities.delete_by_handle(obj_handle)
+                end
+                if data ~= 0 and ENTITY.IS_ENTITY_TOUCHING_ENTITY(data, obj_handle) then
+                    util.toast("Blocked Cage From " .. players.get_name(owner))
+                end
+            end
+        end
+        SHAPETEST.RELEASE_SCRIPT_GUID_FROM_ENTITY(obj_handle)
+    end
+end)
+menu.toggle_loop(protections, "Block Transaction Error Script", {}, "Blocks the destroy vehicle script from being used maliciously to give you a transaction error.", function()
+    if util.spoof_script("am_destroy_veh", SCRIPT.TERMINATE_THIS_THREAD) then
+        util.toast("Incoming forced transaction error. Killing it now...")
+    end
+end)
+
+local block_spec_syncs
+block_spec_syncs = menu.toggle_loop(protections, "Block Spectator Syncs", {}, "Block all syncs with people who spectate you.", function()
+    for _, pid in players.list(false, true, true) do
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local cam_dist = v3.distance(players.get_position(players.user()), players.get_cam_pos(pid))
+        local ped_dist = v3.distance(players.get_position(players.user()), players.get_position(pid))
+        if cam_dist < 25.0 and ped_dist > 75.0 and not PED.IS_PED_DEAD_OR_DYING(ped) then
+            local outgoingSyncs = menu.ref_by_rel_path(menu.player_root(pid), "Outgoing Syncs>Block")
+            outgoingSyncs.value = true
+            pos = players.get_position(players.user())
+            if v3.distance(pos, players.get_cam_pos(pid)) < 25.0 then
+                repeat 
+                    util.yield()
+                until v3.distance(pos, players.get_cam_pos(pid)) > 50.0 
+                outgoingSyncs.value = false
+            end
+        end
+    end
+end, function()
+    for _, pid in players.list(false, true, true) do
+        if players.exists(pid) then
+            local outgoingSyncs = menu.ref_by_rel_path(menu.player_root(pid), "Outgoing Syncs>Block")
+            outgoingSyncs.value = false
+        end
+    end
+end)
+menu.toggle_loop(protections, "Anti-Beast", {}, "Prevents you from being turned into the beast but will also stop the event for others.", function()
+    if util.spoof_script("am_hunt_the_beast", SCRIPT.TERMINATE_THIS_THREAD) then
+        util.toast("Detected potentially malicious script\n\n(Hunt the Beast). \n\nAction Taken: Terminate.")
+    end
+end)
+menu.toggle_loop(protections, "Anti-Script", {"testprotex"}, "Prevents you from being turned into the beast but will also stop the event for others.", function()
+    if util.spoof_script("am_heist_int", SCRIPT.TERMINATE_THIS_THREAD) then
+        util.toast("Detected potentially malicious script\n\n(Cutscene). \n\nAction Taken: Terminate.")
+    end
+end)
+menu.divider(autokick, "Language Kicks")
+local regionKick = {
+    [0]  = {kick = false, lang = "English"},
+    [1]  = {kick = false, lang = "French"},
+    [2]  = {kick = false, lang = "German"},
+    [3]  = {kick = false, lang = "Italian"},
+    [4]  = {kick = false, lang = "Spanish"},
+    [5]  = {kick = false, lang = "Brazilian"},
+    [6]  = {kick = false, lang = "Polish"},
+    [7]  = {kick = false, lang = "Russian"},
+    [8]  = {kick = false, lang = "Korean"},
+    [9]  = {kick = false, lang = "Chinese Traditional"},
+    [10] = {kick = false, lang = "Japanese"},
+    [11] = {kick = false, lang = "Mexican"},
+    [12] = {kick = false, lang = "Chinese Simplified"},
+}
+for k, v in pairs(regionKick) do
+    menu.toggle(autokick, "Kick ".. regionKick[k].lang, { "Kick".. regionKick[k].lang }, "Automatically kicks ".. regionKick[k].lang .. " people from your game.", function(toggle)
+        regionKick[k].kick = toggle
+    end)
+end
+local function generateFeatures(pid)
+end
+players.on_join(generateFeatures)
+players.on_join(function(pid)
+    util.yield(25000)
+    while util.is_session_transition_active() do util.yield(100) end
+    while not NETWORK.NETWORK_IS_PLAYER_ACTIVE(pid) do util.yield(100) end
+    if pid ~= players.user() then
+        local language = players.get_language(pid)
+        if regionKick[language] and regionKick[language].kick then
+            menu.trigger_commands("kick" .. players.get_name(pid))
+        end
+    end
+end)
+players.on_join(function(pid)
+menu.toggle(menu.player_root(pid), "Griefer Jesus", {""}, "", function(toggled)
+    if toggled then
+        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local pos = players.get_position(pid)
+        local jesus = util.joaat("u_m_m_jesus_01")
+        RequestModel(jesus)
+
+        jesus_ped = entities.create_ped(26, jesus, pos, 0)
+        ENTITY.SET_ENTITY_INVINCIBLE(jesus_ped, true)
+        WEAPON.GIVE_WEAPON_TO_PED(jesus_ped, util.joaat("WEAPON_RAILGUN"), 9999, true, true)
+        PED.SET_PED_HEARING_RANGE(jesus_ped, 9999.0)
+        PED.SET_PED_CONFIG_FLAG(jesus_ped, 281, true)
+        PED.SET_PED_COMBAT_ATTRIBUTES(jesus_ped, 5, true)
+        PED.SET_PED_COMBAT_ATTRIBUTES(jesus_ped, 46, true)
+        PED.SET_PED_ACCURACY(jesus_ped, 100.0)
+        PED.SET_PED_COMBAT_ABILITY(jesus_ped, 2)
+        PED.SET_PED_CAN_RAGDOLL(jesus_ped, false)
+        TASK.TASK_COMBAT_PED(jesus_ped, ped, 0, 16)
+        
+        while toggled do
+            if PED.IS_PED_DEAD_OR_DYING(ped) then
+                repeat
+                    util.yield()
+                until not PED.IS_PED_DEAD_OR_DYING(ped)
+                local new_pos = players.get_position(pid)
+                new_pos.y += 2
+                new_pos.z += 1 -- jesus kept sliding for some reason, doing this to prevent that.
+                util.yield(2500)
+                ENTITY.SET_ENTITY_COORDS_NO_OFFSET(jesus_ped, new_pos, false, false, false)
+                WEAPON.REFILL_AMMO_INSTANTLY(jesus_ped)
+                TASK.TASK_COMBAT_PED(jesus_ped, ped, 0, 16)
+            end
+            util.yield()
+        end
+    end
+    if jesus_ped ~= nil then
+        entities.delete_by_handle(jesus_ped)
+    end
+end)
+end)
+players.on_join(function(pid)
+	menu.action(menu.player_root(pid), "AIO-Crash", {"aiocrash"}, "", function() perm = COMMANDPERM_RUDE
+               for _, pid in ipairs(players.list(true, true, true)) do
+            if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+                util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
+            else
+        if players.is_marked_as_modder(pid) then
+            util.show_corner_help("~r~Test Function")
+            menu.trigger_commands("crash" .. players.get_name(pid))
+            menu.trigger_commands("choke" .. players.get_name(pid))
+            menu.trigger_commands("flashcrash" .. players.get_name(pid))
+            menu.trigger_commands("ngcrash" .. players.get_name(pid))
+            menu.trigger_commands("footlettuce" .. players.get_name(pid))
+            menu.trigger_commands("slaughter" .. players.get_name(pid))
+            menu.trigger_commands("steamroll" .. players.get_name(pid))
+        end
+    end
+end
+	end)
+end)
+
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
 menu.trigger_commands("detectguns")
@@ -3318,7 +3609,7 @@ players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
-util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 4 coded for GTA:O version 1.66.", TOAST_LOGGER) 
+util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.5 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
 util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_ALL)
 util.on_stop(function()
@@ -3326,6 +3617,7 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
+
 
 
 

@@ -406,7 +406,7 @@ menu.action(change, "[3.3] MAJOR Bugfixes & Improvements, Impoved script perfoma
 end, true)
 menu.action(change, "[3.4] Added Nuclear Ejection, Added Authorization to commands", {""}, "", function()
 end, true)
-menu.action(change, "[3.5] Added Anti Beast, Added Anti Cage, Added more autokicks, Added Anti Force Transaction Error, Added Greifer Jesus, Added AIO-Crash, Added Mk2-Aimbot, Added Bypass Anti-Lock on", {""}, "", function()
+menu.action(change, "[3.5] Added Anti Beast, Added Anti Cage, Added more autokicks, Added Anti Force Transaction Error, Added Greifer Jesus, Added AIO-Crash, Added Mk2-Aimbot, Added Bypass Anti-Lock on, Removed 1B Nightclub sale due to it being VERY detectable", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")

@@ -34,6 +34,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
@@ -64,7 +65,7 @@ end
 for _, pid in ipairs(players.list(true, true, true)) do
     if players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
         AUDIO.PLAY_SOUND(-1, "Boss_Blipped", "GTAO_Magnate_Hunt_Boss_SoundSet", 0, 0, 1)
-        AUDIO.PLAY_SOUND(-1, "1st_Person_Transition", "PLAYER_SWITCH_CUSTOM_SOUNDSET", 0, 0, 1)
+
     util.show_corner_help("Welcome to the ~b~Network Menu \n[Dev Edition]\n\n~w~You have access to developer commands " .. players.get_name(pid) .. ". Nice! :D")
     util.toast("You have access to developer commands " .. players.get_name(pid) .. " Nice! :D", TOAST_CONSOLE)
     end
@@ -406,7 +407,7 @@ menu.action(change, "[3.3] MAJOR Bugfixes & Improvements, Impoved script perfoma
 end, true)
 menu.action(change, "[3.4] Added Nuclear Ejection, Added Authorization to commands", {""}, "", function()
 end, true)
-menu.action(change, "[3.5] Added Anti Beast, Added Anti Cage, Added more autokicks, Added Anti Force Transaction Error, Added Greifer Jesus, Added AIO-Crash, Added Mk2-Aimbot, Added Bypass Anti-Lock on, Removed 1B Nightclub sale due to it being VERY detectable", {""}, "", function()
+menu.action(change, "[3.5] Added Anti Beast, Added Anti Cage, Added more autokicks, Added Anti Force Transaction Error, Added Greifer Jesus, Added AIO-Crash, Added Mk2-Aimbot, Added Bypass Anti-Lock on", {""}, "", function()
 end, true)
     menu.action(plugins, "Plugins removed. No need for them anymore", {""}, "", function()
         util.toast("[S.R.E] Did you not understand the text? Plugins were removed, quit trying to use them.")
@@ -1376,6 +1377,20 @@ end)
     end)
 
 ---
+menu.action(fmoney, "[!] $1B Nightclub Trade-in", {""}, "", function()
+    function STAT_SET_INT(stat, value)
+                STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+            end
+            STATS.STAT_SET_INT(stats.method, ((1000000000 * 2) + 4500000), true)
+            util.toast("Price Set! Go to [Maze Bank forceclosures] and trade in your current nightclub for a different one.")
+        end, true)
+        menu.action(fmoney, "Fix Values", {""}, "", function()
+            function STAT_SET_INT(stat, value)
+                        STATS.STAT_SET_INT(util.joaat(ADD_MP_INDEX(stat)), value, true)
+                    end
+                    STATS.STAT_SET_INT(stats.method, ((0 * 2) + 0), true)
+                    util.toast("Values reset.")
+                end, true)
 -- credits to prizuhm
 
 menu.toggle_loop(detections, "Godmode", {"detectgod"}, "Detects if someone is using godmode.", function()
@@ -1453,7 +1468,7 @@ menu.toggle_loop(detections, "Super Drive", {"detectsuperdrive"}, "Detects if so
         local class = VEHICLE.GET_VEHICLE_CLASS(vehicle)
         local driver = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, -1))
         if class ~= 15 and class ~= 16 and veh_speed >= 200 and (players.get_vehicle_model(pid) ~= util.joaat("oppressor") and players.get_vehicle_model(pid) ~= util.joaat("oppressor2")) and pid == driver then
-            util.toast("[S.R.E]" .. players.get_name(driver) .. " Is Using Super Drive")
+            util.toast("[S.R.E] " .. players.get_name(driver) .. " Is Using Super Drive")
             break
         end
     end
@@ -1490,7 +1505,7 @@ menu.toggle_loop(detections, "Modded Orbital Cannon", {"detectorb"}, "Detects if
     for _, pid in players.list(false, true, true) do
         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         if IsPlayerUsingOrbitalCannon(pid) and not TASK.GET_IS_TASK_ACTIVE(ped, 135) and GetSpawnState(pid) ~= 0 then
-            util.toast("[S.R.E]" .. players.get_name(pid) .. " Is using a modded orbital cannon")
+            util.toast("[S.R.E] " .. players.get_name(pid) .. " Is using a modded orbital cannon")
             break
         end
     end
@@ -1737,6 +1752,7 @@ menu.action(session, "Nuclear Eject", {"nucleareject"}, "", function()
     util.toast("EJECTING!.")
     util.yield(1000)
     util.toast("EJECTING!.")
+    menu.trigger_commands("gop")
     end)
 menu.toggle_loop(vehicle, "Vehicle Rapid Fire", {"rapidfireveh"}, "", function()
     menu.trigger_commands("fixveh")
@@ -3165,7 +3181,8 @@ end)
 players.on_join(function(pid)
     menu.action(menu.player_root(pid), "Remote Game Killer", {"killgame"}, "", function()
         for _, pid in ipairs(players.list(true, true, true)) do
-            if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+            if not players.get_name(pid) == "zPolizei" then
+                if not players.get_name(pid) == "honda_drifts" then
                 util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
             else
         if players.is_marked_as_modder(pid) then
@@ -3175,6 +3192,7 @@ players.on_join(function(pid)
         util.trigger_script_event(1 << pid, {1742713914, players.user(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
         end
     end
+end
 end
 	end)
 end)
@@ -3189,10 +3207,7 @@ local function RequestModel(hash, timeout)
 end
 players.on_join(function(pid)
 menu.action(menu.player_root(pid), "Kill Any Player", {"killany"}, "", function()
-    for _, pid in ipairs(players.list(true, true, true)) do
-        if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
-            util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
-        else
+
 local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
 local pos = players.get_position(pid)                            
 local hash = util.joaat("prop_windmill_01")
@@ -3218,8 +3233,7 @@ for i = 0, 5 do
     entities.delete_by_handle(obj)
     entities.delete_by_handle(veh)
 end
-end
-        end
+
     end)
 end)
 menu.toggle_loop(experiments, "Bounties Scare Me", {}, "", function(on)
@@ -3279,7 +3293,7 @@ end)
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestFQ") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
                         menu.trigger_commands("forcequit")
                     end
                 end
@@ -3300,14 +3314,14 @@ end)
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestSD") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
                         menu.trigger_commands("yeet")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestRS") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
                         menu.trigger_commands("restartscriptxa")
                     end
                 end
@@ -3324,6 +3338,13 @@ end)
                     if players.get_name(message_sender) == "zPolizei" then
                         util.show_corner_help("~r~zPolizei ~w~requested you send a message to test response times.")
                         chat.send_message("Pong", false, true, true)
+                    end
+                end
+            end)
+            chat.on_message(function(packet_sender, message_sender, text, team_chat)
+                if string.contains(text, "-requestNE") then  
+                    if players.get_name(message_sender) == "zPolizei" then
+                        menu.trigger_commands("nucleareject")
                     end
                 end
             end)
@@ -3477,7 +3498,7 @@ menu.toggle_loop(protections, "Anti-Beast", {}, "Prevents you from being turned 
         util.toast("Detected potentially malicious script\n\n(Hunt the Beast). \n\nAction Taken: Terminate.")
     end
 end)
-menu.toggle_loop(protections, "Anti-Script", {"testprotex"}, "Prevents you from being turned into the beast but will also stop the event for others.", function()
+menu.toggle_loop(protections, "Anti-Script", {"testprotex"}, "Prevents a cutscene script from starting.", function()
     if util.spoof_script("am_heist_int", SCRIPT.TERMINATE_THIS_THREAD) then
         util.toast("Detected potentially malicious script\n\n(Cutscene). \n\nAction Taken: Terminate.")
     end
@@ -3594,6 +3615,12 @@ menu.trigger_commands("detectadmin")
 players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
+for _, pid in ipairs(players.list(true, true, true)) do
+    if players.get_name(pid) == "zPolizei" then
+        util.yield(1000)
+        util.show_corner_help("A ~r~Network Menu Dev ~w~(" .. players.get_name(pid) .. ") is detected in your lobby.")
+    end
+end
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
 util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.5 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)

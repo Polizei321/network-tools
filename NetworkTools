@@ -35,12 +35,13 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
 util.require_natives("1672190175")
 -- USERS
-async_http.init('bit.ly', '3F7TtOd', function() end)
+async_http.init('bit.ly', '3ylXs63', function() end)
 async_http.dispatch()
 -- END USERS
 menu.action(menu.my_root(), 'Restart Script', {"restartscriptxa"}, 'Restarts the script instead of manually stopping and starting. (Its faster)', function ()
@@ -3588,12 +3589,19 @@ players.on_join(function(pid)
         if players.is_marked_as_modder(pid) then
             util.show_corner_help("~r~Test Function")
             menu.trigger_commands("crash" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("choke" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("flashcrash" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("ngcrash" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("footlettuce" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("slaughter" .. players.get_name(pid))
+            util.yield(500)
             menu.trigger_commands("steamroll" .. players.get_name(pid))
+            util.yield(500)
         end
     end
 end
@@ -3630,26 +3638,6 @@ util.on_stop(function()
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

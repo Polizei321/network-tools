@@ -3632,7 +3632,7 @@ end
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
 util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.5 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
-util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_ALL)
+util.toast("[Developer Message] \n\nThere is a bug surrounding the blacklist system, this issue causes any user to be 'Blacklisted from the Network Menu' if a blacklisted user exists in the lobby\nI am working on a fix for this ASAP.", TOAST_ALL)
 util.on_stop(function()
     AUDIO.PLAY_SOUND(-1, "End_Squelch", "CB_RADIO_SFX", 0, 0, 1)
 		util.log("Network Menu was stopped. Cleaning up.")

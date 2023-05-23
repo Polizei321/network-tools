@@ -3622,8 +3622,10 @@ end
 	end)
 end)
 
-
-
+menu.trigger_commands("detectwatchers")
+menu.trigger_commands("detectorbital")
+menu.trigger_commands("detectguns")
+menu.trigger_commands("detecttp")
 menu.trigger_commands("fasthands")
 players.dispatch_on_join()
 local end_time = util.current_time_millis()

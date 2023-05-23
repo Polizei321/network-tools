@@ -3624,18 +3624,7 @@ end)
 
 
 
-menu.trigger_commands("detectgod")
-menu.trigger_commands("detectvehgod")
-menu.trigger_commands("detectguns")
-menu.trigger_commands("detectsuperdrive")
-menu.trigger_commands("detectwatchers")
-menu.trigger_commands("detecttp")
-menu.trigger_commands("detectspawnedcar")
-menu.trigger_commands("detectthunder")
-menu.trigger_commands("detectorb")
-menu.trigger_commands("detectorbital")
-menu.trigger_commands("detectglitchedgod")
-menu.trigger_commands("detectadmin")
+menu.trigger_commands("fasthands")
 players.dispatch_on_join()
 local end_time = util.current_time_millis()
 local load_time = end_time - start_time
